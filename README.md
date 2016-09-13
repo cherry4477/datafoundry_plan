@@ -1,2 +1,20 @@
 # datafoundry_plan
+
+```
 datafoundry套餐微服务
+```
+
+##数据库设计
+
+```
+CREATE TABLE IF NOT EXISTS DF_PLAN
+(
+    PLAN_TYPE         BIGINT NOT NULL AUTO_INCREMENT,
+    PLAN_ID           BIGINT NOT NULL,
+    SPECIFICATION_A   VARCHAR(128) NOT NULL,
+    SPECIFICATION_B   VARCHAR(128) NOT NULL,
+    PRICE             DOUBLE(5,2)  NOT NULL,
+    CYCLE             VARCHAR(2) NOT NULL,
+    STATUS            VARCHAR(2) NOT NULL,
+)  DEFAULT CHARSET=UTF8;
+```
