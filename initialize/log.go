@@ -20,7 +20,7 @@ const (
 	Platform_DaoCloudUT = "daocloud_ut"
 	Platform_DataOS     = "dataos"
 
-	SENDER = "datafoundry_plan"
+	SENDER     = "datafoundry_plan"
 	CHANNELLEN = 3000
 )
 
@@ -34,34 +34,35 @@ var (
 )
 
 func init() {
-	initLog()
-
-	initMQ()
+	//initLog()
 
 	logs.SetAlermSendingCallback(sendAlarm)
 }
 
-func initLog()  {
+func InitLog() *logs.BeeLogger {
 
 	log = logs.NewLogger(CHANNELLEN)
 
 	err := log.SetLogger("console", "")
 	if err != nil {
 		log.Error("set logger err:", err)
-		return
+		return nil
 	}
 
 	log.EnableFuncCallDepth(true)
 
 	if Debug == false {
+		fmt.Println("mode is info...")
 		log.SetLevel(logs.LevelInfo)
 	} else {
 		fmt.Println("mode is debug...")
 		log.SetLevel(logs.LevelDebug)
 	}
+
+	return log
 }
 
-func initMQ() {
+func InitMQ() {
 RETRY:
 
 	//kafkas := net.JoinHostPort(KafkaAddrPort())
@@ -205,8 +206,4 @@ func dnsExchange(srvName string) []*ds.DnsEntry {
 
 func consulAddrPort() (string, string) {
 	return os.Getenv("CONSUL_SERVER"), os.Getenv("CONSUL_DNS_PORT")
-}
-
-func GetLog() *logs.BeeLogger {
-	return log
 }

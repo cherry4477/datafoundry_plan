@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/asiainfoLDP/datafoundry_plan/initialize"
 	"github.com/astaxie/beego/logs"
-	"fmt"
 )
 
 var (
@@ -28,8 +28,8 @@ func main() {
 func init() {
 	flag.Parse()
 	initialize.Debug = *debug
-	fmt.Println(*debug)
-	fmt.Println(initialize.Debug)
 
-	log = initialize.GetLog()
+	log = initialize.InitLog()
+
+	initialize.InitMQ()
 }
