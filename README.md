@@ -30,11 +30,13 @@ CREATE TABLE IF NOT EXISTS DF_PLAN
 
 Body Parameters:
 ```
-type: 套餐类型
+plan_number: 套餐编号
+plan_type: 套餐类型
 specification1: 套餐规格1
 specification2: 套餐规格2
 price: 套餐价格
 cycle: 计价周期
+create_time: 创建日期
 ```
 
 Return Result (json):
@@ -71,11 +73,13 @@ id: 应用id
 
 Body Parameters:
 ```
-type: 套餐类型
+plan_number: 套餐编号
+plan_type: 套餐类型
 specification1: 套餐规格1
 specification2: 套餐规格2
 price: 套餐价格
 cycle: 计价周期
+create_time: 创建日期
 ```
 
 Return Result (json):
@@ -97,10 +101,12 @@ Return Result (json):
 ```
 code: 返回码
 msg: 返回信息
-data.id
-data.type
+data.plan_id
+data.plan_number
+data.plan_type
 data.specification1
 data.specification2
 data.price
 data.cycle
+data.create_time
 ```
