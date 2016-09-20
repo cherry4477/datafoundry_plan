@@ -287,8 +287,6 @@ func (bl *BeeLogger) Alert(format string, v ...interface{}) {
 	msg := fmt.Sprintf("[A] "+format, v...)
 	bl.writeMsg(LevelAlert, msg)
 
-	fmt.Println("into alert...")
-
 	callbackSendAlarm(msg)
 }
 
