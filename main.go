@@ -42,12 +42,12 @@ func main() {
 	address := fmt.Sprintf(":%d", service.httpPort)
 	logger.Debug("address: %v", address)
 
+	logger.Info("Listening http at: %s", address)
 	err := http.ListenAndServe(address, httputil.TimeoutHandler(initRouter, 250*time.Millisecond, ""))
 	if err != nil {
 		logger.Error("http listen and server err: %v", err)
 		return
 	}
-	logger.Info("Listening http at:%s", address)
 
 	return
 }
