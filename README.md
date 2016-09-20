@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS DF_PLAN
 
 ## API设计  
 
-### POST /charge/v1/plan
+### POST /charge/v1/plans
 
 创建一个套餐计划。
 
@@ -46,7 +46,7 @@ msg: 返回信息
 data.id: 套餐id
 ```
 
-### DELETE /charge/v1/plan/{id}
+### DELETE /charge/v1/plans/{id}
 
 删除一个套餐，并不是把套餐从表中删除，而是把状态从激活状态'Y'置为未激活状态'N'。
 
@@ -62,7 +62,7 @@ code: 返回码
 msg: 返回信息
 ```
 
-### PUT /charge/v1/plan/{id}
+### PUT /charge/v1/plans/{id}
 
 更新一个套餐，新添加一个新的套餐计划再把原来的套餐计划置为未激活'N'。
 
@@ -88,7 +88,7 @@ code: 返回码
 msg: 返回信息
 ```
 
-### GET /charge/v1/plan/{id}
+### GET /charge/v1/plans/{id}
 
 查询一个套餐计划。
 
