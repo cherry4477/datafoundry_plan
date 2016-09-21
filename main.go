@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/asiainfoLDP/datafoundry_plan/api"
 	"github.com/asiainfoLDP/datafoundry_plan/log"
+	"github.com/asiainfoLDP/datafoundry_plan/models"
 	"github.com/asiainfoLDP/datafoundry_plan/router"
 	"github.com/asiainfoLDP/datahub_commons/httputil"
 	"net/http"
@@ -36,7 +37,8 @@ func main() {
 	//new a router
 	router.NewRouter(initRouter)
 
-	//todo init db
+	// init db
+	models.InitDB()
 
 	service := newService(SERVERPORT)
 	address := fmt.Sprintf(":%d", service.httpPort)

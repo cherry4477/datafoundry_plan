@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Plan struct {
-	Plan_id        int `json:"plan_id, omitenpty"`
+	Plan_id        int `json:"plan_id, omitempty"`
 	Plan_number    string
 	Plan_type      string
 	Specification1 string
