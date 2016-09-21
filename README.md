@@ -36,7 +36,6 @@ specification1: 套餐规格1
 specification2: 套餐规格2
 price: 套餐价格
 cycle: 计价周期
-create_time: 创建日期
 ```
 
 Return Result (json):
@@ -79,7 +78,6 @@ specification1: 套餐规格1
 specification2: 套餐规格2
 price: 套餐价格
 cycle: 计价周期
-create_time: 创建日期
 ```
 
 Return Result (json):
