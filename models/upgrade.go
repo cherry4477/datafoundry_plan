@@ -29,7 +29,6 @@ const (
 
 var dbPhase = DbPhase_Unkown
 
-
 func IsServing() bool {
 	return dbPhase == DbPhase_Serving
 }

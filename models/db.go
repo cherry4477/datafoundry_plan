@@ -53,7 +53,7 @@ func updateDB() {
 	var err error
 	ticker := time.Tick(5 * time.Second)
 	for range ticker {
-		db := getDB()
+		db := GetDB()
 		if db == nil {
 			connectDB()
 		} else if err = db.Ping(); err != nil {
@@ -64,7 +64,7 @@ func updateDB() {
 	}
 }
 
-func getDB() *sql.DB {
+func GetDB() *sql.DB {
 	if IsServing() {
 		dbMutex.Lock()
 		defer dbMutex.Unlock()

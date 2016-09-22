@@ -1,12 +1,16 @@
 package handler
 
 import (
+	"crypto/rand"
 	"encoding/json"
+	"fmt"
 	"github.com/asiainfoLDP/datafoundry_plan/api"
+	"github.com/asiainfoLDP/datafoundry_plan/common"
 	"github.com/asiainfoLDP/datafoundry_plan/log"
 	"github.com/asiainfoLDP/datafoundry_plan/models"
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
+	mathrand "math/rand"
 	"net/http"
 	"strconv"
 	"time"
@@ -14,32 +18,37 @@ import (
 
 var logger = log.GetLogger()
 
+func init() {
+	mathrand.Seed(time.Now().UnixNano())
+}
+
 func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	logger.Info("Request url: POST %v.", r.URL)
 
 	logger.Info("Begin create plan handler.")
 	defer logger.Info("End create plan handler.")
 
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		logger.Error("IOioutil err, %v.", err)
+	db := models.GetDB()
+	if db == nil {
+		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeDbNotInitlized), nil)
 		return
 	}
 
-	plan := models.Plan{}
-	err = json.Unmarshal(body, &plan)
+	plan := &models.Plan{}
+	err := common.ParseRequestJsonInto(r, plan)
 	if err != nil {
-		logger.Error("Unmarshal err: %v.", err)
+		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeParseJsonFailed, err.Error()), nil)
 		return
-		//api.JsonResult(w, )
 	}
-	plan.Create_time = time.Now()
-	plan.Status = "A"
-	logger.Debug("Plan: %v", plan)
 
-	planId := 1111
+	plan.Plan_number = genUUID()
 
-	//todo create in database
+	//create plan in database
+	planId, err := models.CreatePlan(db, plan)
+	if err != nil {
+		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeCreatePlan, err.Error()), nil)
+		return
+	}
 
 	api.JsonResult(w, http.StatusOK, nil, planId)
 }
@@ -110,4 +119,16 @@ func RetrievePlan(w http.ResponseWriter, r *http.Request, params httprouter.Para
 	}
 
 	api.JsonResult(w, http.StatusOK, nil, plan)
+}
+
+func genUUID() string {
+	bs := make([]byte, 16)
+	_, err := rand.Read(bs)
+	if err != nil {
+		logger.Warn("genUUID error: ", err.Error())
+
+		mathrand.Read(bs)
+	}
+
+	return fmt.Sprintf("%X-%X-%X-%X-%X", bs[0:4], bs[4:6], bs[6:8], bs[8:10], bs[10:])
 }
