@@ -5,13 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"
-	//"strings"
+	stat "github.com/asiainfoLDP/datafoundry_plan/statistics"
 	"io/ioutil"
 	"path/filepath"
-
-	stat "github.com/asiainfoLDP/datafoundry_appmarket/statistics"
-	"github.com/asiainfoLDP/datahub_commons/log"
+	"time"
 )
 
 //=============================================================
@@ -31,6 +28,7 @@ const (
 )
 
 var dbPhase = DbPhase_Unkown
+
 
 func IsServing() bool {
 	return dbPhase == DbPhase_Serving
@@ -74,7 +72,7 @@ func TryToUpgradeDatabase(db *sql.DB, dbName string, reallyNeedUpgrade bool) err
 
 		if current_version != lastDbUpgrader.NewVersion() {
 
-			log.DefaultLogger().Info("mysql start upgrading ...")
+			logger.Info("mysql start upgrading ...")
 
 			dbPhase = DbPhase_Unkown
 
@@ -88,7 +86,7 @@ func TryToUpgradeDatabase(db *sql.DB, dbName string, reallyNeedUpgrade bool) err
 
 	dbPhase = DbPhase_Serving
 
-	log.DefaultLogger().Info("mysql start serving ...")
+	logger.Info("mysql start serving ...")
 
 	return nil
 }
@@ -103,7 +101,7 @@ func _upgradeDatabase(db *sql.DB, dbName string, upgrader DatabaseUpgrader) erro
 		current_version = 1
 	}
 
-	log.DefaultLogger().Info("TryToUpgradeDatabase current version: ", current_version)
+	logger.Info("TryToUpgradeDatabase current version: %d", current_version)
 
 	if upgrader.NewVersion() <= current_version {
 		return nil
@@ -115,7 +113,7 @@ func _upgradeDatabase(db *sql.DB, dbName string, upgrader DatabaseUpgrader) erro
 	dbPhaseKey := stat.GetPhaseKey(dbName)
 	phase, err := stat.SetStatIf(db, dbPhaseKey, DbPhase_Upgrading, DbPhase_Serving)
 
-	log.DefaultLogger().Info("TryToUpgradeDatabase current phase: ", phase)
+	logger.Info("TryToUpgradeDatabase current phase: %d", phase)
 
 	if err != nil {
 		return err
@@ -137,7 +135,7 @@ func _upgradeDatabase(db *sql.DB, dbName string, upgrader DatabaseUpgrader) erro
 		return err
 	}
 
-	log.DefaultLogger().Info("TryToUpgradeDatabase new version: ", upgrader.NewVersion())
+	logger.Info("TryToUpgradeDatabase new version: %d", upgrader.NewVersion())
 
 	time.Sleep(30 * time.Millisecond)
 
