@@ -41,3 +41,86 @@ func CreatePlan(db *sql.DB, planInfo *Plan) (int64, error) {
 
 	return id, err
 }
+
+func DeletePlan(db *sql.DB, planId int) error {
+	logger.Info("Model delete a plan.")
+
+	sqlstr := fmt.Sprintf(`update DF_PLAN set status = "N" where PLAN_ID = %d`, planId)
+
+	_, err := db.Exec(sqlstr)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func RetrieveAppByID(db *sql.DB, planID int) (*Plan, error) {
+	return getSingleApp(db, fmt.Sprintf("where PLAN_ID=%d", planID))
+}
+
+func getSingleApp(db *sql.DB, sqlWhere string) (*Plan, error) {
+	apps, err := queryApps(db, sqlWhere, 1, 0)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	if len(apps) == 0 {
+		return nil, nil
+	}
+
+	return apps[0], nil
+}
+
+func queryApps(db *sql.DB, sqlWhereAll string, limit int, offset int64, sqlParams ...interface{}) ([]*Plan, error) {
+	offset_str := ""
+	if offset > 0 {
+		offset_str = fmt.Sprintf("offset %d", offset)
+	}
+	sql_str := fmt.Sprintf(`select
+					PLAN_ID,
+					PLAN_NUMBER, PLAN_TYPE,
+					SPECIFICATION1,
+					SPECIFICATION2,
+					PRICE, CYCLE
+					from DF_PLAN
+					%s
+					limit %d
+					%s
+					`,
+		sqlWhereAll,
+		limit,
+		offset_str)
+	rows, err := db.Query(sql_str, sqlParams...)
+
+	fmt.Println(">>> ", sql_str)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	plans := make([]*Plan, 0, 100)
+	for rows.Next() {
+		plan := &Plan{}
+		err := rows.Scan(
+			&plan.Plan_id,
+			&plan.Plan_number, &plan.Plan_type, &plan.Specification1, &plan.Specification2,
+			&plan.Price, &plan.Cycle,
+		)
+		if err != nil {
+			return nil, err
+		}
+		//validateApp(s) // already done in scanAppWithRows
+		plans = append(plans, plan)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return plans, nil
+}

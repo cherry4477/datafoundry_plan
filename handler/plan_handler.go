@@ -59,10 +59,27 @@ func DeletePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	logger.Info("Begin delete plan handler.")
 	defer logger.Info("End delete plan handler.")
 
-	planId := params.ByName("id")
-	logger.Debug("Plan id: %s.", planId)
+	db := models.GetDB()
+	if db == nil {
+		logger.Warn("Get db is nil.")
+		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeDbNotInitlized), nil)
+		return
+	}
 
-	//todo delete in database
+	id := params.ByName("id")
+	logger.Debug("Plan id: %s.", id)
+
+	planId, err := strconv.Atoi(id)
+	if err != nil {
+		logger.Error("Strconv err: %v.", err)
+		return
+	}
+	// /delete in database
+	err = models.DeletePlan(db, planId)
+	if err != nil {
+		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeDeletePlan, err.Error()), nil)
+		return
+	}
 
 	api.JsonResult(w, http.StatusOK, nil, nil)
 }
