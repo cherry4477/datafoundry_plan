@@ -2,14 +2,12 @@ package handler
 
 import (
 	"crypto/rand"
-	"encoding/json"
 	"fmt"
 	"github.com/asiainfoLDP/datafoundry_plan/api"
 	"github.com/asiainfoLDP/datafoundry_plan/common"
 	"github.com/asiainfoLDP/datafoundry_plan/log"
 	"github.com/asiainfoLDP/datafoundry_plan/models"
 	"github.com/julienschmidt/httprouter"
-	"io/ioutil"
 	mathrand "math/rand"
 	"net/http"
 	"strconv"
@@ -38,6 +36,7 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	plan := &models.Plan{}
 	err := common.ParseRequestJsonInto(r, plan)
 	if err != nil {
+		logger.Error("Parse body err: %v", err)
 		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeParseJsonFailed, err.Error()), nil)
 		return
 	}
@@ -47,6 +46,7 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	//create plan in database
 	planId, err := models.CreatePlan(db, plan)
 	if err != nil {
+		logger.Error("Create plan err: %v", err)
 		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeCreatePlan, err.Error()), nil)
 		return
 	}
@@ -78,6 +78,7 @@ func DeletePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	// /delete in database
 	err = models.DeletePlan(db, planId)
 	if err != nil {
+		logger.Error("Delete plan err: %v", err)
 		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeDeletePlan, err.Error()), nil)
 		return
 	}
@@ -98,16 +99,12 @@ func ModifyPlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		logger.Error("IOioutil err, %v.", err)
-	}
-
 	plan := &models.Plan{}
-	err = json.Unmarshal(body, plan)
+	err := common.ParseRequestJsonInto(r, plan)
 	if err != nil {
-		logger.Error("Unmarshal err: %v.", err)
-		//api.JsonResult(w, )
+		logger.Error("Parse body err: %v", err)
+		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeParseJsonFailed, err.Error()), nil)
+		return
 	}
 	logger.Debug("Plan: %v", plan)
 
@@ -126,6 +123,7 @@ func ModifyPlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	//update in database
 	err = models.ModifyPlan(db, plan)
 	if err != nil {
+		logger.Error("Modify plan err: %v", err)
 		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeModifyPlan, err.Error()), nil)
 		return
 	}
@@ -139,25 +137,25 @@ func RetrievePlan(w http.ResponseWriter, r *http.Request, params httprouter.Para
 	logger.Info("Begin retrieve plan handler.")
 	defer logger.Info("End retrieve plan handler.")
 
-	id := params.ByName("id")
-	logger.Debug("Plan id: %s.", id)
+	db := models.GetDB()
+	if db == nil {
+		logger.Warn("Get db is nil.")
+		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeDbNotInitlized), nil)
+		return
+	}
 
+	id := params.ByName("id")
 	planId, err := strconv.Atoi(id)
 	if err != nil {
 		logger.Error("Strconv err: %v.", err)
 		return
 	}
 
-	plan := models.Plan{
-		Plan_id:        planId,
-		Plan_number:    "1d3452ea-7f14-11e6-9fe0-2344dd5557c3",
-		Plan_type:      "C",
-		Specification1: "1Gi",
-		Specification2: "8Gi",
-		Price:          88.88,
-		Cycle:          "M",
-		Create_time:    time.Now(),
-		Status:         "A",
+	plan, err := models.RetrievePlanByID(db, planId)
+	if err != nil {
+		logger.Error("Get plan err: %v", err)
+		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeGetPlan), nil)
+		return
 	}
 
 	api.JsonResult(w, http.StatusOK, nil, plan)

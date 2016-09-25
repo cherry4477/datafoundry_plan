@@ -109,7 +109,8 @@ func queryPlans(db *sql.DB, sqlWhereAll string, limit int, offset int64, sqlPara
 					PLAN_NUMBER, PLAN_TYPE,
 					SPECIFICATION1,
 					SPECIFICATION2,
-					PRICE, CYCLE
+					PRICE, CYCLE,
+					CREATE_TIME, STATUS
 					from DF_PLAN
 					%s
 					limit %d
@@ -133,7 +134,7 @@ func queryPlans(db *sql.DB, sqlWhereAll string, limit int, offset int64, sqlPara
 		err := rows.Scan(
 			&plan.Plan_id,
 			&plan.Plan_number, &plan.Plan_type, &plan.Specification1, &plan.Specification2,
-			&plan.Price, &plan.Cycle,
+			&plan.Price, &plan.Cycle, &plan.Create_time, &plan.Status,
 		)
 		if err != nil {
 			return nil, err

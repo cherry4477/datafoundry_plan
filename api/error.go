@@ -32,7 +32,7 @@ const (
 	ErrorCodeCreatePlan        = 1308
 	ErrorCodeDeletePlan        = 1309
 	ErrorCodeModifyPlan        = 1310
-	ErrorCodeGetApp            = 1311
+	ErrorCodeGetPlan           = 1311
 	ErrorCodeQueryApps         = 1312
 
 	NumErrors = 1500 // about 12k memroy wasted
@@ -53,7 +53,7 @@ func init() {
 	initError(ErrorCodeCreatePlan, "failed to create plan")
 	initError(ErrorCodeDeletePlan, "failed to delete plan")
 	initError(ErrorCodeModifyPlan, "failed to modify plan")
-	initError(ErrorCodeGetApp, "failed to retrieve app")
+	initError(ErrorCodeGetPlan, "failed to retrieve plan")
 	initError(ErrorCodeQueryApps, "failed to query apps")
 
 	ErrorNone = GetError(ErrorCodeNone)
