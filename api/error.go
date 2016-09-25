@@ -31,7 +31,7 @@ const (
 	ErrorCodeInvalidParameters = 1307
 	ErrorCodeCreatePlan        = 1308
 	ErrorCodeDeletePlan        = 1309
-	ErrorCodeModifyApp         = 1310
+	ErrorCodeModifyPlan        = 1310
 	ErrorCodeGetApp            = 1311
 	ErrorCodeQueryApps         = 1312
 
@@ -52,7 +52,7 @@ func init() {
 
 	initError(ErrorCodeCreatePlan, "failed to create plan")
 	initError(ErrorCodeDeletePlan, "failed to delete plan")
-	initError(ErrorCodeModifyApp, "failed to modify app")
+	initError(ErrorCodeModifyPlan, "failed to modify plan")
 	initError(ErrorCodeGetApp, "failed to retrieve app")
 	initError(ErrorCodeQueryApps, "failed to query apps")
 

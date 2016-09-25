@@ -30,6 +30,7 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 
 	db := models.GetDB()
 	if db == nil {
+		logger.Warn("Get db is nil.")
 		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeDbNotInitlized), nil)
 		return
 	}
@@ -90,20 +91,44 @@ func ModifyPlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	logger.Info("Begin modify plan handler.")
 	defer logger.Info("End modify plan handler.")
 
+	db := models.GetDB()
+	if db == nil {
+		logger.Warn("Get db is nil.")
+		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeDbNotInitlized), nil)
+		return
+	}
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		logger.Error("IOioutil err, %v.", err)
 	}
 
-	plan := models.Plan{}
-	err = json.Unmarshal(body, &plan)
+	plan := &models.Plan{}
+	err = json.Unmarshal(body, plan)
 	if err != nil {
 		logger.Error("Unmarshal err: %v.", err)
 		//api.JsonResult(w, )
 	}
 	logger.Debug("Plan: %v", plan)
 
-	//todo update in database
+	id := params.ByName("id")
+	logger.Debug("Plan id: %s.", id)
+
+	planId, err := strconv.Atoi(id)
+	if err != nil {
+		logger.Error("Strconv err: %v.", err)
+		return
+	}
+
+	plan.Plan_id = planId
+	plan.Plan_number = genUUID()
+
+	//update in database
+	err = models.ModifyPlan(db, plan)
+	if err != nil {
+		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeModifyPlan, err.Error()), nil)
+		return
+	}
 
 	api.JsonResult(w, http.StatusOK, nil, nil)
 }

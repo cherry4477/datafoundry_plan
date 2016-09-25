@@ -55,12 +55,35 @@ func DeletePlan(db *sql.DB, planId int) error {
 	return err
 }
 
-func RetrieveAppByID(db *sql.DB, planID int) (*Plan, error) {
-	return getSingleApp(db, fmt.Sprintf("where PLAN_ID=%d", planID))
+func ModifyPlan(db *sql.DB, planInfo *Plan) error {
+	logger.Info("Model modify a plan.")
+
+	plan, err := RetrievePlanByID(db, planInfo.Plan_id)
+	if err != nil {
+		return err
+	}
+	logger.Debug("Retrieve plan: %v", plan)
+
+	err = modifyPlanStatusToN(db, plan.Plan_id)
+	if err != nil {
+		return err
+	}
+
+	planInfo.Plan_id = 0
+	_, err = CreatePlan(db, planInfo)
+	if err != nil {
+		return err
+	}
+
+	return err
 }
 
-func getSingleApp(db *sql.DB, sqlWhere string) (*Plan, error) {
-	apps, err := queryApps(db, sqlWhere, 1, 0)
+func RetrievePlanByID(db *sql.DB, planID int) (*Plan, error) {
+	return getSinglePlan(db, fmt.Sprintf("where PLAN_ID = %d", planID))
+}
+
+func getSinglePlan(db *sql.DB, sqlWhere string) (*Plan, error) {
+	apps, err := queryPlans(db, sqlWhere, 1, 0)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -76,7 +99,7 @@ func getSingleApp(db *sql.DB, sqlWhere string) (*Plan, error) {
 	return apps[0], nil
 }
 
-func queryApps(db *sql.DB, sqlWhereAll string, limit int, offset int64, sqlParams ...interface{}) ([]*Plan, error) {
+func queryPlans(db *sql.DB, sqlWhereAll string, limit int, offset int64, sqlParams ...interface{}) ([]*Plan, error) {
 	offset_str := ""
 	if offset > 0 {
 		offset_str = fmt.Sprintf("offset %d", offset)
@@ -123,4 +146,15 @@ func queryApps(db *sql.DB, sqlWhereAll string, limit int, offset int64, sqlParam
 	}
 
 	return plans, nil
+}
+
+func modifyPlanStatusToN(db *sql.DB, planId int) error {
+	sqlstr := fmt.Sprintf(`update DF_PLAN set status = "N" where PLAN_ID = %d`, planId)
+
+	_, err := db.Exec(sqlstr)
+	if err != nil {
+		return err
+	}
+
+	return err
 }
