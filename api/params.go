@@ -14,7 +14,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/asiainfoLDP/datahub_commons/common"
+	"github.com/asiainfoLDP/datafoundry_plan/common"
 	//"github.com/asiainfoLDP/datahub_commons/log"
 	"github.com/asiainfoLDP/datafoundry_plan/log"
 

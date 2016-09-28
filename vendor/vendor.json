@@ -9,6 +9,12 @@
 			"revisionTime": "2016-08-30T13:30:12Z"
 		},
 		{
+			"checksumSHA1": "KMBrsPu4bjLG6yULK3bW53LZi50=",
+			"path": "github.com/asiainfoLDP/datahub_commons/httputil",
+			"revision": "daa5efcf298073ba6c30aadc4b48682ba01ec1e6",
+			"revisionTime": "2016-06-29T06:51:24Z"
+		},
+		{
 			"checksumSHA1": "+C6N0/NZOwK8XaV+GXOSR8BP3Fg=",
 			"path": "github.com/asiainfoLDP/datahub_commons/log",
 			"revision": "daa5efcf298073ba6c30aadc4b48682ba01ec1e6",
@@ -48,6 +54,11 @@
 			"path": "github.com/eapache/queue",
 			"revision": "44cc805cf13205b55f69e14bcb69867d1ae92f98",
 			"revisionTime": "2016-08-05T00:47:13Z"
+		},
+		{
+			"checksumSHA1": "5EDo3sfuw3z3z0kpnreuTfSxmfg=",
+			"path": "github.com/go-sql-driver/mysql",
+			"revision": ""
 		},
 		{
 			"checksumSHA1": "OzddgAh0uv3ukKhWW7QFUEFbxow=",
