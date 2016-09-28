@@ -92,6 +92,11 @@ func DB() *sql.DB {
 func connectDB() {
 	DB_ADDR, DB_PORT := MysqlAddrPort()
 	DB_DATABASE, DB_USER, DB_PASSWORD := MysqlDatabaseUsernamePassword()
+	logger.Info("Mysql_addr: %s\n" +
+		"Mysql_port: %s\n" +
+		"Myql_database: %s\n" +
+		"Mysql_user: %s\n" +
+		"Mysql_password: %s", DB_ADDR, DB_PORT, DB_DATABASE, DB_USER, DB_PASSWORD)
 
 	DB_URL := fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true`, DB_USER, DB_PASSWORD, DB_ADDR, DB_PORT, DB_DATABASE)
 
@@ -119,7 +124,8 @@ func upgradeDB() {
 func MysqlAddrPort() (string, string) {
 	switch Platform {
 	case Platform_DataOS:
-		return os.Getenv(os.Getenv("ENV_NAME_MYSQL_ADDR")), os.Getenv(os.Getenv("ENV_NAME_MYSQL_PORT"))
+		return os.Getenv(os.Getenv("ENV_NAME_MYSQL_ADDR")),
+			os.Getenv(os.Getenv("ENV_NAME_MYSQL_PORT"))
 	case Platform_Local:
 		//return os.Getenv("MYSQL_PORT_3306_TCP_ADDR"), os.Getenv("MYSQL_PORT_3306_TCP_PORT")
 		return "127.0.0.1", "3306"
