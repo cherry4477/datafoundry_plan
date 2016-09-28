@@ -161,6 +161,46 @@ func RetrievePlan(w http.ResponseWriter, r *http.Request, params httprouter.Para
 	api.JsonResult(w, http.StatusOK, nil, plan)
 }
 
+func QueryPlanList(w http.ResponseWriter, r *http.Request, params httprouter.Params)  {
+	logger.Info("Request url: GET %v.", r.URL)
+
+	logger.Info("Begin retrieve plan handler.")
+	defer logger.Info("End retrieve plan handler.")
+
+	db := models.GetDB()
+	if db == nil {
+		logger.Warn("Get db is nil.")
+		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeDbNotInitlized), nil)
+		return
+	}
+
+	r.ParseForm()
+	//
+	//provider, e := validateAppProvider(r.Form.Get("provider"), false)
+	//if e != nil {
+	//	api.JsonResult(w, http.StatusBadRequest, e, nil)
+	//	return
+	//}
+	//
+	//category, e := validateAppCategory(r.Form.Get("category"), false)
+	//if e != nil {
+	//	api.JsonResult(w, http.StatusBadRequest, e, nil)
+	//	return
+	//}
+
+	offset, size := api.OptionalOffsetAndSize(r, 30, 1, 100)
+	orderBy := models.ValidateOrderBy(r.Form.Get("orderby"))
+	sortOrder := models.ValidateSortOrder(r.Form.Get("sortorder"), false)
+
+	count, apps, err := models.QueryPlans(db, orderBy, sortOrder, offset, size)
+	if err != nil {
+		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeQueryPlans, err.Error()), nil)
+		return
+	}
+
+	api.JsonResult(w, http.StatusOK, nil, api.NewQueryListResult(count, apps))
+}
+
 func genUUID() string {
 	bs := make([]byte, 16)
 	_, err := rand.Read(bs)

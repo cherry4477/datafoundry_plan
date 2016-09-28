@@ -67,5 +67,5 @@ func NewRouter(router *httprouter.Router) {
 	router.DELETE("/charge/v1/plans/:id", api.TimeoutHandle(500*time.Millisecond, handler.DeletePlan))
 	router.PUT("/charge/v1/plans/:id", api.TimeoutHandle(500*time.Millisecond, handler.ModifyPlan))
 	router.GET("/charge/v1/plans/:id", api.TimeoutHandle(500*time.Millisecond, handler.RetrievePlan))
-	//router.GET("/saasappapi/v1/apps", api.TimeoutHandle(500*time.Millisecond, QueryAppList))
+	router.GET("/charge/v1/plans", api.TimeoutHandle(500*time.Millisecond, handler.QueryPlanList))
 }

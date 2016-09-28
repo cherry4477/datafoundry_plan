@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+	"strings"
 )
 
 type Plan struct {
@@ -19,7 +20,8 @@ type Plan struct {
 }
 
 func CreatePlan(db *sql.DB, planInfo *Plan) (int64, error) {
-	logger.Info("Model create a plan.")
+	logger.Info("Model begin create a plan.")
+	defer logger.Info("Model end create a plan.")
 
 	nowstr := time.Now().Format("2006-01-02 15:04:05.999999")
 	sqlstr := fmt.Sprintf(`insert into DF_PLAN (
@@ -43,7 +45,8 @@ func CreatePlan(db *sql.DB, planInfo *Plan) (int64, error) {
 }
 
 func DeletePlan(db *sql.DB, planId int) error {
-	logger.Info("Model delete a plan.")
+	logger.Info("Model begin delete a plan.")
+	defer logger.Info("Model begin delete a plan.")
 
 	sqlstr := fmt.Sprintf(`update DF_PLAN set status = "N" where PLAN_ID = %d`, planId)
 
@@ -56,7 +59,8 @@ func DeletePlan(db *sql.DB, planId int) error {
 }
 
 func ModifyPlan(db *sql.DB, planInfo *Plan) error {
-	logger.Info("Model modify a plan.")
+	logger.Info("Model begin modify a plan.")
+	defer logger.Info("Model begin modify a plan.")
 
 	plan, err := RetrievePlanByID(db, planInfo.Plan_id)
 	if err != nil {
@@ -79,6 +83,9 @@ func ModifyPlan(db *sql.DB, planInfo *Plan) error {
 }
 
 func RetrievePlanByID(db *sql.DB, planID int) (*Plan, error) {
+	logger.Info("Model begin get a plan by id.")
+	defer logger.Info("Model end get a plan by id.")
+
 	return getSinglePlan(db, fmt.Sprintf("where PLAN_ID = %d", planID))
 }
 
@@ -158,4 +165,132 @@ func modifyPlanStatusToN(db *sql.DB, planId int) error {
 	}
 
 	return err
+}
+
+func QueryPlans(db *sql.DB, orderBy string, sortOrder bool, offset int64, limit int) (int64, []*Plan, error) {
+	logger.Info("Model begin get plan list.")
+	defer logger.Info("Model end get plan list.")
+
+	sqlParams := make([]interface{}, 0, 4)
+
+	// ...
+
+	sqlWhere := ""
+	//provider = strings.ToLower(provider)
+	//if provider != "" {
+	//	if sqlWhere == "" {
+	//		sqlWhere = "PROVIDER=?"
+	//	} else {
+	//		sqlWhere = sqlWhere + " and PROVIDER=?"
+	//	}
+	//	sqlParams = append(sqlParams, provider)
+	//}
+	//if category != "" {
+	//	if sqlWhere == "" {
+	//		sqlWhere = "CATEGORY=?"
+	//	} else {
+	//		sqlWhere = sqlWhere + " and CATEGORY=?"
+	//	}
+	//	sqlParams = append(sqlParams, category)
+	//}
+
+	// ...
+
+	switch strings.ToLower(orderBy) {
+	default:
+		orderBy = "CREATE_TIME"
+		sortOrder = false
+	case "createtime":
+		orderBy = "CREATE_TIME"
+	case "hotness":
+		orderBy = "HOTNESS"
+	}
+
+	sqlSort := fmt.Sprintf("%s %s", orderBy, sortOrderText[sortOrder])
+
+	// ...
+
+	return getPlanList(db, offset, limit, sqlWhere, sqlSort, sqlParams...)
+}
+
+const (
+	SortOrder_Asc  = "asc"
+	SortOrder_Desc = "desc"
+)
+
+// true: asc
+// false: desc
+var sortOrderText = map[bool]string{true: "asc", false: "desc"}
+
+func ValidateSortOrder(sortOrder string, defaultOrder bool) bool {
+	switch strings.ToLower(sortOrder) {
+	case SortOrder_Asc:
+		return true
+	case SortOrder_Desc:
+		return false
+	}
+
+	return defaultOrder
+}
+
+func ValidateOrderBy(orderBy string) string {
+	switch orderBy {
+	case "createtime":
+		return "CREATE_TIME";
+	case "hotness":
+		return "HOTNESS";
+	}
+
+	return ""
+}
+
+func getPlanList(db *sql.DB, offset int64, limit int, sqlWhere string, sqlSort string, sqlParams ...interface{}) (int64, []*Plan, error) {
+	//if strings.TrimSpace(sqlWhere) == "" {
+	//	return 0, nil, errors.New("sqlWhere can't be blank")
+	//}
+
+	count, err := queryPlansCount(db, sqlWhere)
+	if err != nil {
+		return 0, nil, err
+	}
+	if count == 0 {
+		return 0, []*Plan{}, nil
+	}
+	validateOffsetAndLimit(count, &offset, &limit)
+
+	subs, err := queryPlans(db,
+		fmt.Sprintf(`%s order by %s`, sqlWhere, sqlSort),
+		limit, offset, sqlParams...)
+
+	return count, subs, err
+}
+
+func queryPlansCount(db *sql.DB, sqlWhere string, sqlParams ...interface{}) (int64, error) {
+	sqlWhere = strings.TrimSpace(sqlWhere)
+	sql_where_all := ""
+	if sqlWhere != "" {
+		sql_where_all = fmt.Sprintf("where %s", sqlWhere)
+	}
+
+	count := int64(0)
+	sql_str := fmt.Sprintf(`select COUNT(*) from DF_PLAN %s`, sql_where_all)
+	err := db.QueryRow(sql_str, sqlParams...).Scan(&count)
+
+	return count, err
+}
+
+
+func validateOffsetAndLimit(count int64, offset *int64, limit *int) {
+	if *limit < 1 {
+		*limit = 1
+	}
+	if *offset >= count {
+		*offset = count - int64(*limit)
+	}
+	if *offset < 0 {
+		*offset = 0
+	}
+	if *offset + int64(*limit) > count {
+		*limit = int(count - *offset)
+	}
 }
