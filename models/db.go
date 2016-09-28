@@ -17,7 +17,7 @@ const (
 var (
 	logger = log.GetLogger()
 
-	Platform = Platform_Local
+	Platform = Platform_DataOS
 )
 
 func InitDB() {
@@ -134,10 +134,12 @@ func MysqlDatabaseUsernamePassword() (string, string, string) {
 		return os.Getenv(os.Getenv("ENV_NAME_MYSQL_DATABASE")),
 			os.Getenv(os.Getenv("ENV_NAME_MYSQL_USER")),
 			os.Getenv(os.Getenv("ENV_NAME_MYSQL_PASSWORD"))
+	case Platform_Local:
+		return "datafoundry", "root", "root"
 	}
 
 	//return os.Getenv("MYSQL_ENV_MYSQL_DATABASE"),
 	//	os.Getenv("MYSQL_ENV_MYSQL_USER"),
 	//	os.Getenv("MYSQL_ENV_MYSQL_PASSWORD")
-	return "datafoundry", "root", "root"
+	return "", "", ""
 }
