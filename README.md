@@ -30,7 +30,6 @@ CREATE TABLE IF NOT EXISTS DF_PLAN
 
 Body Parameters:
 ```
-plan_number: 套餐编号
 plan_type: 套餐类型
 specification1: 套餐规格1
 specification2: 套餐规格2
@@ -72,7 +71,6 @@ id: 应用id
 
 Body Parameters:
 ```
-plan_number: 套餐编号
 plan_type: 套餐类型
 specification1: 套餐规格1
 specification2: 套餐规格2
@@ -107,4 +105,5 @@ data.specification2
 data.price
 data.cycle
 data.create_time
+data.status
 ```
