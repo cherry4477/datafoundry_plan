@@ -107,3 +107,30 @@ data.cycle
 data.create_time
 data.status
 ```
+
+### GET /charge/v1/plans
+
+查询套餐列表
+
+Query Parameters:
+```
+page: 第几页。可选。最小值为1。默认为1。
+size: 每页最多返回多少条数据。可选。最小为1，最大为100。默认为30。
+```
+
+Return Result (json):
+```
+code: 返回码
+msg: 返回信息
+data.total
+data[0].plan_id
+data[0].plan_number
+data[0].plan_type
+data[0].specification1
+data[0].specification2
+data[0].price
+data[0].cycle
+data[0].create_time
+data[0].status
+...
+```
