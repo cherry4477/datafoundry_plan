@@ -3,13 +3,13 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	"time"
 	"strings"
+	"time"
 )
 
 type Plan struct {
-	Plan_id        int `json:"plan_id, omitempty"`
-	Plan_number    string
+	id             int `json:"plan_id, omitempty"`
+	Plan_id        string
 	Plan_type      string
 	Specification1 string
 	Specification2 string
@@ -19,38 +19,34 @@ type Plan struct {
 	Status         string
 }
 
-func CreatePlan(db *sql.DB, planInfo *Plan) (int64, error) {
+func CreatePlan(db *sql.DB, planInfo *Plan) (string, error) {
 	logger.Info("Model begin create a plan.")
 	defer logger.Info("Model end create a plan.")
 
 	nowstr := time.Now().Format("2006-01-02 15:04:05.999999")
 	sqlstr := fmt.Sprintf(`insert into DF_PLAN (
-				PLAN_NUMBER, PLAN_TYPE, SPECIFICATION1, SPECIFICATION2,
+				PLAN_ID, PLAN_TYPE, SPECIFICATION1, SPECIFICATION2,
 				PRICE, CYCLE, CREATE_TIME, STATUS
 				) values (
 				?, ?, ?, ?, ?, ?,
 				'%s', '%s')`,
 		nowstr, "A")
 
-	result, err := db.Exec(sqlstr,
-		planInfo.Plan_number, planInfo.Plan_type, planInfo.Specification1, planInfo.Specification2,
+	_, err := db.Exec(sqlstr,
+		planInfo.Plan_id, planInfo.Plan_type, planInfo.Specification1, planInfo.Specification2,
 		planInfo.Price, planInfo.Cycle)
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return id, err
+	return planInfo.Plan_id, err
 }
 
-func DeletePlan(db *sql.DB, planId int) error {
+func DeletePlan(db *sql.DB, planId string) error {
 	logger.Info("Model begin delete a plan.")
 	defer logger.Info("Model begin delete a plan.")
 
-	sqlstr := fmt.Sprintf(`update DF_PLAN set status = "N" where PLAN_ID = %d`, planId)
+	//sqlstr := fmt.Sprintf(`update DF_PLAN set status = "N" where PLAN_ID = '%s'`, planId)
+	//_, err := db.Exec(sqlstr)
 
-	_, err := db.Exec(sqlstr)
+	err := modifyPlanStatusToN(db, planId)
 	if err != nil {
 		return err
 	}
@@ -73,7 +69,7 @@ func ModifyPlan(db *sql.DB, planInfo *Plan) error {
 		return err
 	}
 
-	planInfo.Plan_id = 0
+	//planInfo.Plan_id = 0
 	_, err = CreatePlan(db, planInfo)
 	if err != nil {
 		return err
@@ -82,11 +78,11 @@ func ModifyPlan(db *sql.DB, planInfo *Plan) error {
 	return err
 }
 
-func RetrievePlanByID(db *sql.DB, planID int) (*Plan, error) {
+func RetrievePlanByID(db *sql.DB, planID string) (*Plan, error) {
 	logger.Info("Model begin get a plan by id.")
 	defer logger.Info("Model end get a plan by id.")
 
-	return getSinglePlan(db, fmt.Sprintf("where PLAN_ID = %d", planID))
+	return getSinglePlan(db, fmt.Sprintf("PLAN_ID = '%s' and STATUS = 'A'", planID))
 }
 
 func getSinglePlan(db *sql.DB, sqlWhere string) (*Plan, error) {
@@ -106,14 +102,19 @@ func getSinglePlan(db *sql.DB, sqlWhere string) (*Plan, error) {
 	return apps[0], nil
 }
 
-func queryPlans(db *sql.DB, sqlWhereAll string, limit int, offset int64, sqlParams ...interface{}) ([]*Plan, error) {
+func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams ...interface{}) ([]*Plan, error) {
 	offset_str := ""
 	if offset > 0 {
 		offset_str = fmt.Sprintf("offset %d", offset)
 	}
+
+	sqlWhereAll := ""
+	if sqlWhere != "" {
+		sqlWhereAll = fmt.Sprintf("where %s", sqlWhere)
+	}
+
 	sql_str := fmt.Sprintf(`select
-					PLAN_ID,
-					PLAN_NUMBER, PLAN_TYPE,
+					PLAN_ID, PLAN_TYPE,
 					SPECIFICATION1,
 					SPECIFICATION2,
 					PRICE, CYCLE,
@@ -139,8 +140,7 @@ func queryPlans(db *sql.DB, sqlWhereAll string, limit int, offset int64, sqlPara
 	for rows.Next() {
 		plan := &Plan{}
 		err := rows.Scan(
-			&plan.Plan_id,
-			&plan.Plan_number, &plan.Plan_type, &plan.Specification1, &plan.Specification2,
+			&plan.Plan_id, &plan.Plan_type, &plan.Specification1, &plan.Specification2,
 			&plan.Price, &plan.Cycle, &plan.Create_time, &plan.Status,
 		)
 		if err != nil {
@@ -156,8 +156,8 @@ func queryPlans(db *sql.DB, sqlWhereAll string, limit int, offset int64, sqlPara
 	return plans, nil
 }
 
-func modifyPlanStatusToN(db *sql.DB, planId int) error {
-	sqlstr := fmt.Sprintf(`update DF_PLAN set status = "N" where PLAN_ID = %d`, planId)
+func modifyPlanStatusToN(db *sql.DB, planId string) error {
+	sqlstr := fmt.Sprintf(`update DF_PLAN set status = "N" where PLAN_ID = '%s' and STATUS = 'A'`, planId)
 
 	_, err := db.Exec(sqlstr)
 	if err != nil {
@@ -175,7 +175,7 @@ func QueryPlans(db *sql.DB, orderBy string, sortOrder bool, offset int64, limit 
 
 	// ...
 
-	sqlWhere := ""
+	sqlWhere := "STATUS = 'A'"
 	//provider = strings.ToLower(provider)
 	//if provider != "" {
 	//	if sqlWhere == "" {
@@ -236,9 +236,9 @@ func ValidateSortOrder(sortOrder string, defaultOrder bool) bool {
 func ValidateOrderBy(orderBy string) string {
 	switch orderBy {
 	case "createtime":
-		return "CREATE_TIME";
+		return "CREATE_TIME"
 	case "hotness":
-		return "HOTNESS";
+		return "HOTNESS"
 	}
 
 	return ""
@@ -274,11 +274,12 @@ func queryPlansCount(db *sql.DB, sqlWhere string, sqlParams ...interface{}) (int
 
 	count := int64(0)
 	sql_str := fmt.Sprintf(`select COUNT(*) from DF_PLAN %s`, sql_where_all)
+	logger.Debug(">>>\n"+
+		"	%s", sql_str)
 	err := db.QueryRow(sql_str, sqlParams...).Scan(&count)
 
 	return count, err
 }
-
 
 func validateOffsetAndLimit(count int64, offset *int64, limit *int) {
 	if *limit < 1 {
@@ -290,7 +291,7 @@ func validateOffsetAndLimit(count int64, offset *int64, limit *int) {
 	if *offset < 0 {
 		*offset = 0
 	}
-	if *offset + int64(*limit) > count {
+	if *offset+int64(*limit) > count {
 		*limit = int(count - *offset)
 	}
 }

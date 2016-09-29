@@ -10,7 +10,6 @@ import (
 	"github.com/julienschmidt/httprouter"
 	mathrand "math/rand"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -41,7 +40,7 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
-	plan.Plan_number = genUUID()
+	plan.Plan_id = genUUID()
 
 	//create plan in database
 	planId, err := models.CreatePlan(db, plan)
@@ -67,16 +66,11 @@ func DeletePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
-	id := params.ByName("id")
-	logger.Debug("Plan id: %s.", id)
+	planId := params.ByName("id")
+	logger.Debug("Plan id: %s.", planId)
 
-	planId, err := strconv.Atoi(id)
-	if err != nil {
-		logger.Error("Strconv err: %v.", err)
-		return
-	}
 	// /delete in database
-	err = models.DeletePlan(db, planId)
+	err := models.DeletePlan(db, planId)
 	if err != nil {
 		logger.Error("Delete plan err: %v", err)
 		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeDeletePlan, err.Error()), nil)
@@ -108,17 +102,10 @@ func ModifyPlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	}
 	logger.Debug("Plan: %v", plan)
 
-	id := params.ByName("id")
-	logger.Debug("Plan id: %s.", id)
-
-	planId, err := strconv.Atoi(id)
-	if err != nil {
-		logger.Error("Strconv err: %v.", err)
-		return
-	}
+	planId := params.ByName("id")
+	logger.Debug("Plan id: %s.", planId)
 
 	plan.Plan_id = planId
-	plan.Plan_number = genUUID()
 
 	//update in database
 	err = models.ModifyPlan(db, plan)
@@ -144,13 +131,7 @@ func RetrievePlan(w http.ResponseWriter, r *http.Request, params httprouter.Para
 		return
 	}
 
-	id := params.ByName("id")
-	planId, err := strconv.Atoi(id)
-	if err != nil {
-		logger.Error("Strconv err: %v.", err)
-		return
-	}
-
+	planId := params.ByName("id")
 	plan, err := models.RetrievePlanByID(db, planId)
 	if err != nil {
 		logger.Error("Get plan err: %v", err)
@@ -161,7 +142,7 @@ func RetrievePlan(w http.ResponseWriter, r *http.Request, params httprouter.Para
 	api.JsonResult(w, http.StatusOK, nil, plan)
 }
 
-func QueryPlanList(w http.ResponseWriter, r *http.Request, params httprouter.Params)  {
+func QueryPlanList(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	logger.Info("Request url: GET %v.", r.URL)
 
 	logger.Info("Begin retrieve plan handler.")

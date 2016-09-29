@@ -17,7 +17,7 @@ const (
 var (
 	logger = log.GetLogger()
 
-	Platform = Platform_DataOS
+	Platform = Platform_Local
 )
 
 func InitDB() {
@@ -92,10 +92,10 @@ func DB() *sql.DB {
 func connectDB() {
 	DB_ADDR, DB_PORT := MysqlAddrPort()
 	DB_DATABASE, DB_USER, DB_PASSWORD := MysqlDatabaseUsernamePassword()
-	logger.Info("Mysql_addr: %s\n" +
-		"Mysql_port: %s\n" +
-		"Myql_database: %s\n" +
-		"Mysql_user: %s\n" +
+	logger.Info("Mysql_addr: %s\n"+
+		"Mysql_port: %s\n"+
+		"Myql_database: %s\n"+
+		"Mysql_user: %s\n"+
 		"Mysql_password: %s", DB_ADDR, DB_PORT, DB_DATABASE, DB_USER, DB_PASSWORD)
 
 	DB_URL := fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true`, DB_USER, DB_PASSWORD, DB_ADDR, DB_PORT, DB_DATABASE)
