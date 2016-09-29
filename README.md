@@ -9,8 +9,8 @@ datafoundry套餐微服务
 ```
 CREATE TABLE IF NOT EXISTS DF_PLAN
 (
-    PLAN_ID           INT NOT NULL AUTO_INCREMENT,
-    PLAN_NUMBER       VARCHAR(64) NOT NULL,
+    ID                INT NOT NULL AUTO_INCREMENT,
+    PLAN_ID           VARCHAR(64) NOT NULL,
     PLAN_TYPE         VARCHAR(2) NOT NULL,
     SPECIFICATION1    VARCHAR(128) NOT NULL,
     SPECIFICATION2    VARCHAR(128) NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS DF_PLAN
     CYCLE             VARCHAR(2) NOT NULL,
     CREATE_TIME       DATETIME,
     STATUS            VARCHAR(2) NOT NULL,
-    PRIMARY KEY (PLAN_ID)
+    PRIMARY KEY (ID)
 )  DEFAULT CHARSET=UTF8;
 ```
 
@@ -41,10 +41,10 @@ Return Result (json):
 ```
 code: 返回码
 msg: 返回信息
-data.id: 套餐id
+data.plan_id: 套餐id
 ```
 
-### DELETE /charge/v1/plans/{id}
+### DELETE /charge/v1/plans/{planId}
 
 删除一个套餐，并不是把套餐从表中删除，而是把状态从激活状态'Y'置为未激活状态'N'。
 
@@ -60,13 +60,13 @@ code: 返回码
 msg: 返回信息
 ```
 
-### PUT /charge/v1/plans/{id}
+### PUT /charge/v1/plans/{planId}
 
 更新一个套餐，新添加一个新的套餐计划再把原来的套餐计划置为未激活'N'。
 
 Path Parameters:
 ```
-id: 应用id
+planId: 套餐ID
 ```
 
 Body Parameters:
@@ -84,13 +84,13 @@ code: 返回码
 msg: 返回信息
 ```
 
-### GET /charge/v1/plans/{id}
+### GET /charge/v1/plans/{planId}
 
 查询一个套餐计划。
 
 Path Parameters:
 ```
-id: 应用id
+planId: 套餐ID
 ```
 
 Return Result (json):
@@ -98,7 +98,6 @@ Return Result (json):
 code: 返回码
 msg: 返回信息
 data.plan_id
-data.plan_number
 data.plan_type
 data.specification1
 data.specification2
@@ -124,7 +123,6 @@ code: 返回码
 msg: 返回信息
 data.total
 data[0].plan_id
-data[0].plan_number
 data[0].plan_type
 data[0].specification1
 data[0].specification2
