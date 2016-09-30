@@ -8,7 +8,7 @@ import (
 )
 
 type Plan struct {
-	id             int `json:"plan_id, omitempty"`
+	id             int `json:"plan_id,omitempty"`
 	Plan_id        string
 	Plan_type      string
 	Specification1 string
