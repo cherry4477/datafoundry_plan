@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"fmt"
 	"github.com/asiainfoLDP/datahub_commons/log"
 )
 
@@ -96,6 +97,8 @@ func ParseRequestJsonInto(r *http.Request, into interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println(string(data))
 
 	return json.Unmarshal(data, into)
 }

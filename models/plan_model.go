@@ -10,11 +10,12 @@ import (
 type Plan struct {
 	id             int
 	Plan_id        string    `json:"plan_id,omitempty"`
-	Plan_type      string    `json:"type,omitempty"`
-	Specification1 string    `json:"spec1,omitempty"`
-	Specification2 string    `json:"spec2,omitempty"`
+	Plan_type      string    `json:"plan_type,omitempty"`
+	Specification1 string    `json:"specification1,omitempty"`
+	Specification2 string    `json:"specification2,omitempty"`
 	Price          float32   `json:"price,omitempty"`
-	Cycle          string    `json:"bill_period,omitempty"`
+	Cycle          string    `json:"cycle,omitempty"`
+	Region         string    `json:"region,omitempty"`
 	Create_time    time.Time `json:"creation_time,omitempty"`
 	Status         string    `json:"status,omitempty"`
 }
@@ -25,16 +26,16 @@ func CreatePlan(db *sql.DB, planInfo *Plan) (string, error) {
 
 	nowstr := time.Now().Format("2006-01-02 15:04:05.999999")
 	sqlstr := fmt.Sprintf(`insert into DF_PLAN (
-				PLAN_NUMBER, PLAN_TYPE, SPECIFICATION1, SPECIFICATION2,
-				PRICE, CYCLE, CREATE_TIME, STATUS
+				PLAN_ID, PLAN_TYPE, SPECIFICATION1, SPECIFICATION2,
+				PRICE, CYCLE, REGION, CREATE_TIME, STATUS
 				) values (
-				?, ?, ?, ?, ?, ?,
+				?, ?, ?, ?, ?, ?, ?,
 				'%s', '%s')`,
 		nowstr, "A")
 
 	_, err := db.Exec(sqlstr,
 		planInfo.Plan_id, planInfo.Plan_type, planInfo.Specification1, planInfo.Specification2,
-		planInfo.Price, planInfo.Cycle)
+		planInfo.Price, planInfo.Cycle, planInfo.Region)
 
 	return planInfo.Plan_id, err
 }
@@ -114,10 +115,10 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 	}
 
 	sql_str := fmt.Sprintf(`select
-					PLAN_NUMBER, PLAN_TYPE,
+					PLAN_ID, PLAN_TYPE,
 					SPECIFICATION1,
 					SPECIFICATION2,
-					PRICE, CYCLE,
+					PRICE, CYCLE, REGION,
 					CREATE_TIME, STATUS
 					from DF_PLAN
 					%s
@@ -141,7 +142,7 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 		plan := &Plan{}
 		err := rows.Scan(
 			&plan.Plan_id, &plan.Plan_type, &plan.Specification1, &plan.Specification2,
-			&plan.Price, &plan.Cycle, &plan.Create_time, &plan.Status,
+			&plan.Price, &plan.Cycle, &plan.Region, &plan.Create_time, &plan.Status,
 		)
 		if err != nil {
 			return nil, err

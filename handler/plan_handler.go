@@ -42,6 +42,8 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 
 	plan.Plan_id = genUUID()
 
+	logger.Debug("plan: %v", plan)
+
 	//create plan in database
 	planId, err := models.CreatePlan(db, plan)
 	if err != nil {
