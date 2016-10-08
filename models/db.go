@@ -17,7 +17,7 @@ const (
 var (
 	logger = log.GetLogger()
 
-	Platform = Platform_Local
+	Platform = Platform_DataOS
 )
 
 func InitDB() {
