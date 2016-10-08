@@ -8,15 +8,15 @@ import (
 )
 
 type Plan struct {
-	id             int `json:"plan_id, omitempty"`
-	Plan_id        string
-	Plan_type      string
-	Specification1 string
-	Specification2 string
-	Price          float32
-	Cycle          string
-	Create_time    time.Time
-	Status         string
+	id             int
+	Plan_id        string    `json:"plan_id,omitempty"`
+	Plan_type      string    `json:"type,omitempty"`
+	Specification1 string    `json:"spec1,omitempty"`
+	Specification2 string    `json:"spec2,omitempty"`
+	Price          float32   `json:"price,omitempty"`
+	Cycle          string    `json:"bill_period,omitempty"`
+	Create_time    time.Time `json:"creation_time,omitempty"`
+	Status         string    `json:"status,omitempty"`
 }
 
 func CreatePlan(db *sql.DB, planInfo *Plan) (string, error) {
@@ -25,7 +25,7 @@ func CreatePlan(db *sql.DB, planInfo *Plan) (string, error) {
 
 	nowstr := time.Now().Format("2006-01-02 15:04:05.999999")
 	sqlstr := fmt.Sprintf(`insert into DF_PLAN (
-				PLAN_ID, PLAN_TYPE, SPECIFICATION1, SPECIFICATION2,
+				PLAN_NUMBER, PLAN_TYPE, SPECIFICATION1, SPECIFICATION2,
 				PRICE, CYCLE, CREATE_TIME, STATUS
 				) values (
 				?, ?, ?, ?, ?, ?,
@@ -114,7 +114,7 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 	}
 
 	sql_str := fmt.Sprintf(`select
-					PLAN_ID, PLAN_TYPE,
+					PLAN_NUMBER, PLAN_TYPE,
 					SPECIFICATION1,
 					SPECIFICATION2,
 					PRICE, CYCLE,
