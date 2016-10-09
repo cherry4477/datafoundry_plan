@@ -158,19 +158,6 @@ func QueryPlanList(w http.ResponseWriter, r *http.Request, params httprouter.Par
 	}
 
 	r.ParseForm()
-	//
-	//provider, e := validateAppProvider(r.Form.Get("provider"), false)
-	//if e != nil {
-	//	api.JsonResult(w, http.StatusBadRequest, e, nil)
-	//	return
-	//}
-	//
-	//category, e := validateAppCategory(r.Form.Get("category"), false)
-	//if e != nil {
-	//	api.JsonResult(w, http.StatusBadRequest, e, nil)
-	//	return
-	//}
-
 	offset, size := api.OptionalOffsetAndSize(r, 30, 1, 100)
 	orderBy := models.ValidateOrderBy(r.Form.Get("orderby"))
 	sortOrder := models.ValidateSortOrder(r.Form.Get("sortorder"), false)

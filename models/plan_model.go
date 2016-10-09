@@ -10,6 +10,7 @@ import (
 type Plan struct {
 	id             int
 	Plan_id        string    `json:"plan_id,omitempty"`
+	Plan_name      string    `json:"plan_name,omitempty"`
 	Plan_type      string    `json:"plan_type,omitempty"`
 	Specification1 string    `json:"specification1,omitempty"`
 	Specification2 string    `json:"specification2,omitempty"`
@@ -26,15 +27,15 @@ func CreatePlan(db *sql.DB, planInfo *Plan) (string, error) {
 
 	nowstr := time.Now().Format("2006-01-02 15:04:05.999999")
 	sqlstr := fmt.Sprintf(`insert into DF_PLAN (
-				PLAN_ID, PLAN_TYPE, SPECIFICATION1, SPECIFICATION2,
+				PLAN_ID, PLAN_NAME, PLAN_TYPE, SPECIFICATION1, SPECIFICATION2,
 				PRICE, CYCLE, REGION, CREATE_TIME, STATUS
 				) values (
-				?, ?, ?, ?, ?, ?, ?,
+				?, ?, ?, ?, ?, ?, ?, ?,
 				'%s', '%s')`,
 		nowstr, "A")
 
 	_, err := db.Exec(sqlstr,
-		planInfo.Plan_id, planInfo.Plan_type, planInfo.Specification1, planInfo.Specification2,
+		planInfo.Plan_id, planInfo.Plan_name, planInfo.Plan_type, planInfo.Specification1, planInfo.Specification2,
 		planInfo.Price, planInfo.Cycle, planInfo.Region)
 
 	return planInfo.Plan_id, err
@@ -115,7 +116,7 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 	}
 
 	sql_str := fmt.Sprintf(`select
-					PLAN_ID, PLAN_TYPE,
+					PLAN_ID, PLAN_NAME, PLAN_TYPE,
 					SPECIFICATION1,
 					SPECIFICATION2,
 					PRICE, CYCLE, REGION,
@@ -130,7 +131,7 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 		offset_str)
 	rows, err := db.Query(sql_str, sqlParams...)
 
-	fmt.Println(">>> ", sql_str)
+	logger.Info(">>> %v", sql_str)
 
 	if err != nil {
 		return nil, err
@@ -141,7 +142,7 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 	for rows.Next() {
 		plan := &Plan{}
 		err := rows.Scan(
-			&plan.Plan_id, &plan.Plan_type, &plan.Specification1, &plan.Specification2,
+			&plan.Plan_id, &plan.Plan_name, &plan.Plan_type, &plan.Specification1, &plan.Specification2,
 			&plan.Price, &plan.Cycle, &plan.Region, &plan.Create_time, &plan.Status,
 		)
 		if err != nil {

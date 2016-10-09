@@ -18,10 +18,19 @@ var (
 	logger = log.GetLogger()
 
 	Platform = Platform_DataOS
+
+	SetPlatform bool
 )
 
 func InitDB() {
 	// return true // temp, mysqlnocase.servicebroker.dataos.io is not available now.
+
+	if SetPlatform {
+		Platform = Platform_Local
+		logger.Info("running on local.")
+	} else {
+		logger.Info("running on dataos.")
+	}
 
 	for i := 0; i < 3; i++ {
 		connectDB()
