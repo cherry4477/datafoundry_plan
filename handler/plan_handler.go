@@ -158,11 +158,15 @@ func QueryPlanList(w http.ResponseWriter, r *http.Request, params httprouter.Par
 	}
 
 	r.ParseForm()
+
+	region := r.Form.Get("region")
+	ptype := r.Form.Get("type")
+
 	offset, size := api.OptionalOffsetAndSize(r, 30, 1, 100)
 	orderBy := models.ValidateOrderBy(r.Form.Get("orderby"))
 	sortOrder := models.ValidateSortOrder(r.Form.Get("sortorder"), false)
 
-	count, apps, err := models.QueryPlans(db, orderBy, sortOrder, offset, size)
+	count, apps, err := models.QueryPlans(db, region, ptype, orderBy, sortOrder, offset, size)
 	if err != nil {
 		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeQueryPlans, err.Error()), nil)
 		return
@@ -182,3 +186,29 @@ func genUUID() string {
 
 	return fmt.Sprintf("%X-%X-%X-%X-%X", bs[0:4], bs[4:6], bs[6:8], bs[8:10], bs[10:])
 }
+
+//func validateAppProvider(provider string, musBeNotBlank bool) (string, *Error) {
+//	if musBeNotBlank || provider != "" {
+//		// most 20 Chinese chars
+//		provider_param, e := _mustStringParam("provider", provider, 60, StringParamType_General)
+//		if e != nil {
+//			return "", e
+//		}
+//		provider = provider_param
+//	}
+//
+//	return provider, nil
+//}
+//
+//func validateAppCategory(category string, musBeNotBlank bool) (string, *api.Error) {
+//	if musBeNotBlank || category != "" {
+//		// most 10 Chinese chars
+//		category_param, e := _mustStringParam("category", category, 32, StringParamType_General)
+//		if e != nil {
+//			return "", e
+//		}
+//		category = category_param
+//	}
+//
+//	return category, nil
+//}

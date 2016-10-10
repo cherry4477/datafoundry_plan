@@ -169,7 +169,7 @@ func modifyPlanStatusToN(db *sql.DB, planId string) error {
 	return err
 }
 
-func QueryPlans(db *sql.DB, orderBy string, sortOrder bool, offset int64, limit int) (int64, []*Plan, error) {
+func QueryPlans(db *sql.DB, region, ptype, orderBy string, sortOrder bool, offset int64, limit int) (int64, []*Plan, error) {
 	logger.Info("Model begin get plan list.")
 	defer logger.Info("Model end get plan list.")
 
@@ -178,23 +178,24 @@ func QueryPlans(db *sql.DB, orderBy string, sortOrder bool, offset int64, limit 
 	// ...
 
 	sqlWhere := "STATUS = 'A'"
-	//provider = strings.ToLower(provider)
-	//if provider != "" {
-	//	if sqlWhere == "" {
-	//		sqlWhere = "PROVIDER=?"
-	//	} else {
-	//		sqlWhere = sqlWhere + " and PROVIDER=?"
-	//	}
-	//	sqlParams = append(sqlParams, provider)
-	//}
-	//if category != "" {
-	//	if sqlWhere == "" {
-	//		sqlWhere = "CATEGORY=?"
-	//	} else {
-	//		sqlWhere = sqlWhere + " and CATEGORY=?"
-	//	}
-	//	sqlParams = append(sqlParams, category)
-	//}
+	//region = strings.ToLower(region)
+	if region != "" {
+		if sqlWhere == "" {
+			sqlWhere = "REGION = ?"
+		} else {
+			sqlWhere = sqlWhere + " and REGION = ?"
+		}
+		sqlParams = append(sqlParams, region)
+	}
+
+	if ptype != "" {
+		if sqlWhere == "" {
+			sqlWhere = "PLAN_TYPE = ?"
+		} else {
+			sqlWhere = sqlWhere + " and PLAN_TYPE = ?"
+		}
+		sqlParams = append(sqlParams, ptype)
+	}
 
 	// ...
 
@@ -251,7 +252,8 @@ func getPlanList(db *sql.DB, offset int64, limit int, sqlWhere string, sqlSort s
 	//	return 0, nil, errors.New("sqlWhere can't be blank")
 	//}
 
-	count, err := queryPlansCount(db, sqlWhere)
+	count, err := queryPlansCount(db, sqlWhere, sqlParams...)
+	logger.Debug("count: %v", count)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -278,6 +280,7 @@ func queryPlansCount(db *sql.DB, sqlWhere string, sqlParams ...interface{}) (int
 	sql_str := fmt.Sprintf(`select COUNT(*) from DF_PLAN %s`, sql_where_all)
 	logger.Debug(">>>\n"+
 		"	%s", sql_str)
+	logger.Debug("sqlParams: %v", sqlParams)
 	err := db.QueryRow(sql_str, sqlParams...).Scan(&count)
 
 	return count, err
