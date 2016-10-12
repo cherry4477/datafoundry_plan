@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -12,6 +13,7 @@ type Plan struct {
 	Plan_id        string    `json:"plan_id,omitempty"`
 	Plan_name      string    `json:"plan_name,omitempty"`
 	Plan_type      string    `json:"plan_type,omitempty"`
+	Plan_level     string    `json:"plan_level,omitempty"`
 	Specification1 string    `json:"specification1,omitempty"`
 	Specification2 string    `json:"specification2,omitempty"`
 	Price          float32   `json:"price,omitempty"`
@@ -27,15 +29,15 @@ func CreatePlan(db *sql.DB, planInfo *Plan) (string, error) {
 
 	nowstr := time.Now().Format("2006-01-02 15:04:05.999999")
 	sqlstr := fmt.Sprintf(`insert into DF_PLAN (
-				PLAN_ID, PLAN_NAME, PLAN_TYPE, SPECIFICATION1, SPECIFICATION2,
+				PLAN_ID, PLAN_NAME, PLAN_TYPE, PLAN_LEVEL, SPECIFICATION1, SPECIFICATION2,
 				PRICE, CYCLE, REGION, CREATE_TIME, STATUS
 				) values (
-				?, ?, ?, ?, ?, ?, ?, ?,
+				?, ?, ?, ?, ?, ?, ?, ?, ?,
 				'%s', '%s')`,
 		nowstr, "A")
 
 	_, err := db.Exec(sqlstr,
-		planInfo.Plan_id, planInfo.Plan_name, planInfo.Plan_type, planInfo.Specification1, planInfo.Specification2,
+		planInfo.Plan_id, planInfo.Plan_name, planInfo.Plan_type, planInfo.Plan_level, planInfo.Specification1, planInfo.Specification2,
 		planInfo.Price, planInfo.Cycle, planInfo.Region)
 
 	return planInfo.Plan_id, err
@@ -63,6 +65,8 @@ func ModifyPlan(db *sql.DB, planInfo *Plan) error {
 	plan, err := RetrievePlanByID(db, planInfo.Plan_id)
 	if err != nil {
 		return err
+	} else if plan == nil {
+		return errors.New("Without this plan.")
 	}
 	logger.Debug("Retrieve plan: %v", plan)
 
@@ -71,7 +75,6 @@ func ModifyPlan(db *sql.DB, planInfo *Plan) error {
 		return err
 	}
 
-	//planInfo.Plan_id = 0
 	_, err = CreatePlan(db, planInfo)
 	if err != nil {
 		return err
@@ -116,7 +119,8 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 	}
 
 	sql_str := fmt.Sprintf(`select
-					PLAN_ID, PLAN_NAME, PLAN_TYPE,
+					PLAN_ID, PLAN_NAME,
+					PLAN_TYPE, PLAN_LEVEL,
 					SPECIFICATION1,
 					SPECIFICATION2,
 					PRICE, CYCLE, REGION,
@@ -142,7 +146,7 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 	for rows.Next() {
 		plan := &Plan{}
 		err := rows.Scan(
-			&plan.Plan_id, &plan.Plan_name, &plan.Plan_type, &plan.Specification1, &plan.Specification2,
+			&plan.Plan_id, &plan.Plan_name, &plan.Plan_type, &plan.Plan_level, &plan.Specification1, &plan.Specification2,
 			&plan.Price, &plan.Cycle, &plan.Region, &plan.Create_time, &plan.Status,
 		)
 		if err != nil {
@@ -178,7 +182,7 @@ func QueryPlans(db *sql.DB, region, ptype, orderBy string, sortOrder bool, offse
 	// ...
 
 	sqlWhere := "STATUS = 'A'"
-	//region = strings.ToLower(region)
+	region = strings.ToLower(region)
 	if region != "" {
 		if sqlWhere == "" {
 			sqlWhere = "REGION = ?"
@@ -188,6 +192,7 @@ func QueryPlans(db *sql.DB, region, ptype, orderBy string, sortOrder bool, offse
 		sqlParams = append(sqlParams, region)
 	}
 
+	ptype = strings.ToLower(ptype)
 	if ptype != "" {
 		if sqlWhere == "" {
 			sqlWhere = "PLAN_TYPE = ?"
