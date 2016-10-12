@@ -150,3 +150,15 @@ data[0].create_time
 data[0].status
 ...
 ```
+
+### GET /charge/v1/plans/region
+
+查询所有套餐所在区域
+
+Return Result (json):
+```
+code: 返回码
+msg: 返回信息
+data.region["铸造一区"， "铸造二区"]
+
+
