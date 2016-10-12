@@ -151,7 +151,7 @@ data[0].status
 ...
 ```
 
-### GET /charge/v1/plans/region
+### GET /charge/v1/query/plans/region
 
 查询所有套餐所在区域
 
