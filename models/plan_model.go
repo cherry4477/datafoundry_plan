@@ -305,3 +305,28 @@ func validateOffsetAndLimit(count int64, offset *int64, limit *int) {
 		*limit = int(count - *offset)
 	}
 }
+
+func RetrievePlanRegion(db *sql.DB) ([]string, error) {
+	logger.Info("Model begin get plans region.")
+	defer logger.Info("Model end get plan region.")
+
+	sql := "select distinct region from DF_PLAN"
+
+	rows, err := db.Query(sql)
+	if err != nil {
+		return nil, err
+	}
+
+	regions := make([]string, 0)
+	var region string
+	for rows.Next() {
+		err = rows.Scan(&region)
+		if err != nil {
+			return nil, err
+		}
+
+		regions = append(regions, region)
+	}
+
+	return regions, err
+}

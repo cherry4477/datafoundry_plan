@@ -68,4 +68,5 @@ func NewRouter(router *httprouter.Router) {
 	router.PUT("/charge/v1/plans/:id", api.TimeoutHandle(500*time.Millisecond, handler.ModifyPlan))
 	router.GET("/charge/v1/plans/:id", api.TimeoutHandle(500*time.Millisecond, handler.RetrievePlan))
 	router.GET("/charge/v1/plans", api.TimeoutHandle(500*time.Millisecond, handler.QueryPlanList))
+	router.GET("/charge/v1/query/plans/region", api.TimeoutHandle(500*time.Millisecond, handler.RetrievePlanRegion))
 }

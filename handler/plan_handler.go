@@ -175,6 +175,27 @@ func QueryPlanList(w http.ResponseWriter, r *http.Request, params httprouter.Par
 	api.JsonResult(w, http.StatusOK, nil, api.NewQueryListResult(count, apps))
 }
 
+func RetrievePlanRegion(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	logger.Info("Request url: GET %v.", r.URL)
+
+	logger.Info("Begin retrieve plans's region handler.")
+	defer logger.Info("End retrieve plans's region handler.")
+
+	db := models.GetDB()
+	if db == nil {
+		logger.Warn("Get db is nil.")
+		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeDbNotInitlized), nil)
+		return
+	}
+
+	regions, err := models.RetrievePlanRegion(db)
+	if err != nil {
+		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeGetPlansRegion), nil)
+	}
+
+	api.JsonResult(w, http.StatusOK, nil, regions)
+}
+
 func genUUID() string {
 	bs := make([]byte, 16)
 	_, err := rand.Read(bs)
