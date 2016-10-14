@@ -23,7 +23,6 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	logger.Info("Request url: POST %v.", r.URL)
 
 	logger.Info("Begin create plan handler.")
-	defer logger.Info("End create plan handler.")
 
 	db := models.GetDB()
 	if db == nil {
@@ -52,6 +51,7 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
+	logger.Info("End create plan handler.")
 	api.JsonResult(w, http.StatusOK, nil, planId)
 }
 
@@ -59,7 +59,6 @@ func DeletePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	logger.Info("Request url: DELETE %v.", r.URL)
 
 	logger.Info("Begin delete plan handler.")
-	defer logger.Info("End delete plan handler.")
 
 	db := models.GetDB()
 	if db == nil {
@@ -79,6 +78,7 @@ func DeletePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
+	logger.Info("End delete plan handler.")
 	api.JsonResult(w, http.StatusOK, nil, nil)
 }
 
@@ -86,7 +86,6 @@ func ModifyPlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	logger.Info("Request url: PUT %v.", r.URL)
 
 	logger.Info("Begin modify plan handler.")
-	defer logger.Info("End modify plan handler.")
 
 	db := models.GetDB()
 	if db == nil {
@@ -117,6 +116,7 @@ func ModifyPlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
+	logger.Info("End modify plan handler.")
 	api.JsonResult(w, http.StatusOK, nil, nil)
 }
 
@@ -124,7 +124,6 @@ func RetrievePlan(w http.ResponseWriter, r *http.Request, params httprouter.Para
 	logger.Info("Request url: GET %v.", r.URL)
 
 	logger.Info("Begin retrieve plan handler.")
-	defer logger.Info("End retrieve plan handler.")
 
 	db := models.GetDB()
 	if db == nil {
@@ -141,6 +140,7 @@ func RetrievePlan(w http.ResponseWriter, r *http.Request, params httprouter.Para
 		return
 	}
 
+	logger.Info("End retrieve plan handler.")
 	api.JsonResult(w, http.StatusOK, nil, plan)
 }
 
@@ -148,7 +148,6 @@ func QueryPlanList(w http.ResponseWriter, r *http.Request, params httprouter.Par
 	logger.Info("Request url: GET %v.", r.URL)
 
 	logger.Info("Begin retrieve plan handler.")
-	defer logger.Info("End retrieve plan handler.")
 
 	db := models.GetDB()
 	if db == nil {
@@ -172,6 +171,7 @@ func QueryPlanList(w http.ResponseWriter, r *http.Request, params httprouter.Par
 		return
 	}
 
+	logger.Info("End retrieve plan handler.")
 	api.JsonResult(w, http.StatusOK, nil, api.NewQueryListResult(count, apps))
 }
 
@@ -179,7 +179,6 @@ func RetrievePlanRegion(w http.ResponseWriter, r *http.Request, params httproute
 	logger.Info("Request url: GET %v.", r.URL)
 
 	logger.Info("Begin retrieve plans's region handler.")
-	defer logger.Info("End retrieve plans's region handler.")
 
 	db := models.GetDB()
 	if db == nil {
@@ -193,6 +192,7 @@ func RetrievePlanRegion(w http.ResponseWriter, r *http.Request, params httproute
 		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeGetPlansRegion), nil)
 	}
 
+	logger.Info("End retrieve plans's region handler.")
 	api.JsonResult(w, http.StatusOK, nil, regions)
 }
 

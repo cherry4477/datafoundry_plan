@@ -18,43 +18,62 @@ type Plan struct {
 	Specification2 string    `json:"specification2,omitempty"`
 	Price          float32   `json:"price,omitempty"`
 	Cycle          string    `json:"cycle,omitempty"`
-	Region         string    `json:"region,omitempty"`
 	Create_time    time.Time `json:"creation_time,omitempty"`
+	Region_id      int       `json:"region_id,omitempty"`
 	Status         string    `json:"status,omitempty"`
+}
+
+type PlanRegion struct {
+	Region          string `json:"region"`
+	Region_describe string `json:"region_describe"`
+	Identification  string `json:"identification"`
+}
+
+type Result struct {
+	id              int
+	Plan_id         string    `json:"plan_id,omitempty"`
+	Plan_name       string    `json:"plan_name,omitempty"`
+	Plan_type       string    `json:"plan_type,omitempty"`
+	Plan_level      int       `json:"plan_level,omitempty"`
+	Specification1  string    `json:"specification1,omitempty"`
+	Specification2  string    `json:"specification2,omitempty"`
+	Price           float32   `json:"price,omitempty"`
+	Cycle           string    `json:"cycle,omitempty"`
+	Region          string    `json:"region,omitempty"`
+	Region_describe string    `json:"region_describe,omitempty"`
+	Create_time     time.Time `json:"creation_time,omitempty"`
+	Status          string    `json:"status,omitempty"`
 }
 
 func CreatePlan(db *sql.DB, planInfo *Plan) (string, error) {
 	logger.Info("Model begin create a plan.")
-	defer logger.Info("Model end create a plan.")
 
 	nowstr := time.Now().Format("2006-01-02 15:04:05.999999")
 	sqlstr := fmt.Sprintf(`insert into DF_PLAN (
 				PLAN_ID, PLAN_NAME, PLAN_TYPE, PLAN_LEVEL, SPECIFICATION1, SPECIFICATION2,
-				PRICE, CYCLE, REGION, CREATE_TIME, STATUS
+				PRICE, CYCLE, CREATE_TIME, REGION_ID, STATUS
 				) values (
-				?, ?, ?, ?, ?, ?, ?, ?, ?,
-				'%s', '%s')`,
+				?, ?, ?, ?, ?, ?, ?, ?,
+				'%s', ?, '%s')`,
 		nowstr, "A")
 
 	_, err := db.Exec(sqlstr,
 		planInfo.Plan_id, planInfo.Plan_name, planInfo.Plan_type, planInfo.Plan_level, planInfo.Specification1, planInfo.Specification2,
-		planInfo.Price, planInfo.Cycle, planInfo.Region)
+		planInfo.Price, planInfo.Cycle, planInfo.Region_id)
 
+	logger.Info("Model end create a plan.")
 	return planInfo.Plan_id, err
 }
 
 func DeletePlan(db *sql.DB, planId string) error {
 	logger.Info("Model begin delete a plan.")
-	defer logger.Info("Model begin delete a plan.")
-
-	//sqlstr := fmt.Sprintf(`update DF_PLAN set status = "N" where PLAN_ID = '%s'`, planId)
-	//_, err := db.Exec(sqlstr)
 
 	err := modifyPlanStatusToN(db, planId)
 	if err != nil {
 		return err
 	}
 
+	logger.Info("Model begin delete a plan.")
 	return err
 }
 
@@ -83,14 +102,14 @@ func ModifyPlan(db *sql.DB, planInfo *Plan) error {
 	return err
 }
 
-func RetrievePlanByID(db *sql.DB, planID string) (*Plan, error) {
+func RetrievePlanByID(db *sql.DB, planID string) (*Result, error) {
 	logger.Info("Model begin get a plan by id.")
-	defer logger.Info("Model end get a plan by id.")
 
+	logger.Info("Model end get a plan by id.")
 	return getSinglePlan(db, fmt.Sprintf("PLAN_ID = '%s' and STATUS = 'A'", planID))
 }
 
-func getSinglePlan(db *sql.DB, sqlWhere string) (*Plan, error) {
+func getSinglePlan(db *sql.DB, sqlWhere string) (*Result, error) {
 	apps, err := queryPlans(db, sqlWhere, 1, 0)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -107,7 +126,7 @@ func getSinglePlan(db *sql.DB, sqlWhere string) (*Plan, error) {
 	return apps[0], nil
 }
 
-func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams ...interface{}) ([]*Plan, error) {
+func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams ...interface{}) ([]*Result, error) {
 	offset_str := ""
 	if offset > 0 {
 		offset_str = fmt.Sprintf("offset %d", offset)
@@ -115,17 +134,18 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 
 	sqlWhereAll := ""
 	if sqlWhere != "" {
-		sqlWhereAll = fmt.Sprintf("where %s", sqlWhere)
+		sqlWhereAll = fmt.Sprintf("WHERE P.REGION_ID=R.ID AND %s", sqlWhere)
 	}
 
 	sql_str := fmt.Sprintf(`select
-					PLAN_ID, PLAN_NAME,
-					PLAN_TYPE, PLAN_LEVEL,
-					SPECIFICATION1,
-					SPECIFICATION2,
-					PRICE, CYCLE, REGION,
-					CREATE_TIME, STATUS
-					from DF_PLAN
+					P.PLAN_ID, P.PLAN_NAME,
+					P.PLAN_TYPE, P.PLAN_LEVEL,
+					P.SPECIFICATION1,
+					P.SPECIFICATION2,
+					P.PRICE, P.CYCLE,
+					R.REGION, R.REGION_DESCRIBE,
+					P.CREATE_TIME, P.STATUS
+					from DF_PLAN P, DF_PLAN_REGION R
 					%s
 					limit %d
 					%s
@@ -142,12 +162,12 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 	}
 	defer rows.Close()
 
-	plans := make([]*Plan, 0, 100)
+	plans := make([]*Result, 0, 100)
 	for rows.Next() {
-		plan := &Plan{}
+		plan := &Result{}
 		err := rows.Scan(
 			&plan.Plan_id, &plan.Plan_name, &plan.Plan_type, &plan.Plan_level, &plan.Specification1, &plan.Specification2,
-			&plan.Price, &plan.Cycle, &plan.Region, &plan.Create_time, &plan.Status,
+			&plan.Price, &plan.Cycle, &plan.Region, &plan.Region_describe, &plan.Create_time, &plan.Status,
 		)
 		if err != nil {
 			return nil, err
@@ -173,7 +193,7 @@ func modifyPlanStatusToN(db *sql.DB, planId string) error {
 	return err
 }
 
-func QueryPlans(db *sql.DB, region, ptype, orderBy string, sortOrder bool, offset int64, limit int) (int64, []*Plan, error) {
+func QueryPlans(db *sql.DB, region, ptype, orderBy string, sortOrder bool, offset int64, limit int) (int64, []*Result, error) {
 	logger.Info("Model begin get plan list.")
 	defer logger.Info("Model end get plan list.")
 
@@ -184,12 +204,18 @@ func QueryPlans(db *sql.DB, region, ptype, orderBy string, sortOrder bool, offse
 	sqlWhere := "STATUS = 'A'"
 	region = strings.ToLower(region)
 	if region != "" {
-		if sqlWhere == "" {
-			sqlWhere = "REGION = ?"
-		} else {
-			sqlWhere = sqlWhere + " and REGION = ?"
+
+		regionId, err := getRegionId(db, region)
+		if err != nil {
+			return 0, nil, err
 		}
-		sqlParams = append(sqlParams, region)
+
+		if sqlWhere == "" {
+			sqlWhere = "REGION_ID = ?"
+		} else {
+			sqlWhere = sqlWhere + " and REGION_ID = ?"
+		}
+		sqlParams = append(sqlParams, regionId)
 	}
 
 	ptype = strings.ToLower(ptype)
@@ -219,6 +245,20 @@ func QueryPlans(db *sql.DB, region, ptype, orderBy string, sortOrder bool, offse
 	// ...
 
 	return getPlanList(db, offset, limit, sqlWhere, sqlSort, sqlParams...)
+}
+
+func getRegionId(db *sql.DB, region string) (int, error) {
+	sql := `SELECT ID FROM DF_PLAN_REGION WHERE REGION=?`
+
+	row := db.QueryRow(sql, region)
+
+	var regionId int
+	err := row.Scan(&regionId)
+	if err != nil {
+		return 0, err
+	}
+
+	return regionId, err
 }
 
 const (
@@ -252,7 +292,7 @@ func ValidateOrderBy(orderBy string) string {
 	return ""
 }
 
-func getPlanList(db *sql.DB, offset int64, limit int, sqlWhere string, sqlSort string, sqlParams ...interface{}) (int64, []*Plan, error) {
+func getPlanList(db *sql.DB, offset int64, limit int, sqlWhere string, sqlSort string, sqlParams ...interface{}) (int64, []*Result, error) {
 	//if strings.TrimSpace(sqlWhere) == "" {
 	//	return 0, nil, errors.New("sqlWhere can't be blank")
 	//}
@@ -263,7 +303,7 @@ func getPlanList(db *sql.DB, offset int64, limit int, sqlWhere string, sqlSort s
 		return 0, nil, err
 	}
 	if count == 0 {
-		return 0, []*Plan{}, nil
+		return 0, []*Result{}, nil
 	}
 	validateOffsetAndLimit(count, &offset, &limit)
 
@@ -306,27 +346,28 @@ func validateOffsetAndLimit(count int64, offset *int64, limit *int) {
 	}
 }
 
-func RetrievePlanRegion(db *sql.DB) ([]string, error) {
+func RetrievePlanRegion(db *sql.DB) ([]PlanRegion, error) {
 	logger.Info("Model begin get plans region.")
-	defer logger.Info("Model end get plan region.")
 
-	sql := "select distinct region from DF_PLAN"
+	sql := "SELECT REGION, REGION_DESCRIBE, IDENTIFICATION FROM DF_PLAN_REGION"
 
 	rows, err := db.Query(sql)
 	if err != nil {
 		return nil, err
 	}
 
-	regions := make([]string, 0)
-	var region string
+	regions := make([]PlanRegion, 0)
+	var region PlanRegion
 	for rows.Next() {
-		err = rows.Scan(&region)
+		err = rows.Scan(&region.Region, &region.Region_describe, &region.Identification)
 		if err != nil {
 			return nil, err
 		}
 
 		regions = append(regions, region)
 	}
+
+	logger.Info("Model end get plan region.")
 
 	return regions, err
 }
