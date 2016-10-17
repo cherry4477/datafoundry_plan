@@ -9,7 +9,7 @@ import (
 )
 
 type Plan struct {
-	id             int
+	Id             int
 	Plan_id        string    `json:"plan_id,omitempty"`
 	Plan_name      string    `json:"plan_name,omitempty"`
 	Plan_type      string    `json:"plan_type,omitempty"`
@@ -30,7 +30,7 @@ type PlanRegion struct {
 }
 
 type Result struct {
-	id              int
+	Id              int       `json:"id,omitempty"`
 	Plan_id         string    `json:"plan_id,omitempty"`
 	Plan_name       string    `json:"plan_name,omitempty"`
 	Plan_type       string    `json:"plan_type,omitempty"`
@@ -138,7 +138,7 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 	}
 
 	sql_str := fmt.Sprintf(`select
-					P.PLAN_ID, P.PLAN_NAME,
+					P.ID, P.PLAN_ID, P.PLAN_NAME,
 					P.PLAN_TYPE, P.PLAN_LEVEL,
 					P.SPECIFICATION1,
 					P.SPECIFICATION2,
@@ -166,7 +166,7 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 	for rows.Next() {
 		plan := &Result{}
 		err := rows.Scan(
-			&plan.Plan_id, &plan.Plan_name, &plan.Plan_type, &plan.Plan_level, &plan.Specification1, &plan.Specification2,
+			&plan.Id, &plan.Plan_id, &plan.Plan_name, &plan.Plan_type, &plan.Plan_level, &plan.Specification1, &plan.Specification2,
 			&plan.Price, &plan.Cycle, &plan.Region, &plan.Region_describe, &plan.Create_time, &plan.Status,
 		)
 		if err != nil {
