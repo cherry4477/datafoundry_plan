@@ -193,7 +193,7 @@ func RetrievePlanRegion(w http.ResponseWriter, r *http.Request, params httproute
 	}
 
 	logger.Info("End retrieve plans's region handler.")
-	api.JsonResult(w, http.StatusOK, nil, regions)
+	api.JsonResult(w, http.StatusOK, nil, api.NewQueryListResult(int64(len(regions)), regions))
 }
 
 func genUUID() string {
