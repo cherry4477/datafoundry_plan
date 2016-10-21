@@ -248,7 +248,7 @@ func QueryPlans(db *sql.DB, region, ptype, orderBy string, sortOrder bool, offse
 }
 
 func getRegionId(db *sql.DB, region string) (int, error) {
-	sql := `SELECT ID FROM DF_PLAN_REGION WHERE IDENTIFICATION=?`
+	sql := `SELECT ID FROM DF_PLAN_REGION WHERE REGION=?`
 
 	row := db.QueryRow(sql, region)
 
