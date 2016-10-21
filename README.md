@@ -137,17 +137,18 @@ Return Result (json):
 code: 返回码
 msg: 返回信息
 data.total
-data[0].plan_id
-data[0].plan_name
-data[0].plan_type
-data[0].plan_level
-data[0].specification1
-data[0].specification2
-data[0].price
-data[0].cycle
-data[0].region
-data[0].create_time
-data[0].status
+data.results
+data.results[0].plan_id
+data.results[0].plan_name
+data.results[0].plan_type
+data.results[0].plan_level
+data.results[0].specification1
+data.results[0].specification2
+data.results[0].price
+data.results[0].cycle
+data.results[0].region
+data.results[0].create_time
+data.results[0].status
 ...
 ```
 
@@ -159,6 +160,10 @@ Return Result (json):
 ```
 code: 返回码
 msg: 返回信息
-data.region["铸造一区"， "铸造二区"]
+data.total
+data.results
+data..results[0].region
+...
+```
 
 
