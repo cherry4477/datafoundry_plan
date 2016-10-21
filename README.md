@@ -40,7 +40,7 @@ specification1: 套餐规格1
 specification2: 套餐规格2
 price: 套餐价格
 cycle: 计价周期
-region: 套餐所在区域
+region_id: 套餐所在区域id
 ```
 
 Return Result (json):
@@ -85,7 +85,7 @@ specification1: 套餐规格1
 specification2: 套餐规格2
 price: 套餐价格
 cycle: 计价周期
-region: 套餐所在区域
+region_id: 套餐所在区域id
 ```
 
 Return Result (json):
