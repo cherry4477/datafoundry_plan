@@ -143,7 +143,7 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 					P.SPECIFICATION1,
 					P.SPECIFICATION2,
 					P.PRICE, P.CYCLE,
-					R.REGION, R.REGION_DESCRIBE,
+					R.IDENTIFICATION, R.REGION_DESCRIBE,
 					P.CREATE_TIME, P.STATUS
 					from DF_PLAN P, DF_PLAN_REGION R
 					%s
