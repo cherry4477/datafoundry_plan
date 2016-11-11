@@ -63,10 +63,10 @@ func InitRouter() *httprouter.Router {
 
 func NewRouter(router *httprouter.Router) {
 	logger.Info("new router.")
-	router.POST("/charge/v1/plans", api.TimeoutHandle(500*time.Millisecond, handler.CreatePlan))
-	router.DELETE("/charge/v1/plans/:id", api.TimeoutHandle(500*time.Millisecond, handler.DeletePlan))
-	router.PUT("/charge/v1/plans/:id", api.TimeoutHandle(500*time.Millisecond, handler.ModifyPlan))
-	router.GET("/charge/v1/plans/:id", api.TimeoutHandle(500*time.Millisecond, handler.RetrievePlan))
-	router.GET("/charge/v1/plans", api.TimeoutHandle(500*time.Millisecond, handler.QueryPlanList))
-	router.GET("/charge/v1/query/plans/region", api.TimeoutHandle(500*time.Millisecond, handler.RetrievePlanRegion))
+	router.POST("/charge/v1/plans", api.TimeoutHandle(80000*time.Millisecond, handler.CreatePlan))
+	router.DELETE("/charge/v1/plans/:id", api.TimeoutHandle(80000*time.Millisecond, handler.DeletePlan))
+	router.PUT("/charge/v1/plans/:id", api.TimeoutHandle(80000*time.Millisecond, handler.ModifyPlan))
+	router.GET("/charge/v1/plans/:id", api.TimeoutHandle(80000*time.Millisecond, handler.RetrievePlan))
+	router.GET("/charge/v1/plans", api.TimeoutHandle(80000*time.Millisecond, handler.QueryPlanList))
+	router.GET("/charge/v1/query/plans/region", api.TimeoutHandle(80000*time.Millisecond, handler.RetrievePlanRegion))
 }
