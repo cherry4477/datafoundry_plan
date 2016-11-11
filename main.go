@@ -6,9 +6,7 @@ import (
 	"github.com/asiainfoLDP/datafoundry_plan/log"
 	"github.com/asiainfoLDP/datafoundry_plan/models"
 	"github.com/asiainfoLDP/datafoundry_plan/router"
-	"github.com/asiainfoLDP/datahub_commons/httputil"
 	"net/http"
-	"time"
 )
 
 const SERVERPORT = 8574
