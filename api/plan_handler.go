@@ -1,9 +1,8 @@
-package handler
+package api
 
 import (
 	"crypto/rand"
 	"fmt"
-	"github.com/asiainfoLDP/datafoundry_plan/api"
 	"github.com/asiainfoLDP/datafoundry_plan/common"
 	"github.com/asiainfoLDP/datafoundry_plan/log"
 	"github.com/asiainfoLDP/datafoundry_plan/models"
@@ -27,7 +26,7 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	db := models.GetDB()
 	if db == nil {
 		logger.Warn("Get db is nil.")
-		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeDbNotInitlized), nil)
+		JsonResult(w, http.StatusInternalServerError, GetError(ErrorCodeDbNotInitlized), nil)
 		return
 	}
 
@@ -35,7 +34,7 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	err := common.ParseRequestJsonInto(r, plan)
 	if err != nil {
 		logger.Error("Parse body err: %v", err)
-		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeParseJsonFailed, err.Error()), nil)
+		JsonResult(w, http.StatusBadRequest, GetError2(ErrorCodeParseJsonFailed, err.Error()), nil)
 		return
 	}
 
@@ -47,12 +46,12 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	planId, err := models.CreatePlan(db, plan)
 	if err != nil {
 		logger.Error("Create plan err: %v", err)
-		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeCreatePlan, err.Error()), nil)
+		JsonResult(w, http.StatusBadRequest, GetError2(ErrorCodeCreatePlan, err.Error()), nil)
 		return
 	}
 
 	logger.Info("End create plan handler.")
-	api.JsonResult(w, http.StatusOK, nil, planId)
+	JsonResult(w, http.StatusOK, nil, planId)
 }
 
 func DeletePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -63,7 +62,7 @@ func DeletePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	db := models.GetDB()
 	if db == nil {
 		logger.Warn("Get db is nil.")
-		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeDbNotInitlized), nil)
+		JsonResult(w, http.StatusInternalServerError, GetError(ErrorCodeDbNotInitlized), nil)
 		return
 	}
 
@@ -74,12 +73,12 @@ func DeletePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	err := models.DeletePlan(db, planId)
 	if err != nil {
 		logger.Error("Delete plan err: %v", err)
-		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeDeletePlan, err.Error()), nil)
+		JsonResult(w, http.StatusBadRequest, GetError2(ErrorCodeDeletePlan, err.Error()), nil)
 		return
 	}
 
 	logger.Info("End delete plan handler.")
-	api.JsonResult(w, http.StatusOK, nil, nil)
+	JsonResult(w, http.StatusOK, nil, nil)
 }
 
 func ModifyPlan(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -90,7 +89,7 @@ func ModifyPlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	db := models.GetDB()
 	if db == nil {
 		logger.Warn("Get db is nil.")
-		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeDbNotInitlized), nil)
+		JsonResult(w, http.StatusInternalServerError, GetError(ErrorCodeDbNotInitlized), nil)
 		return
 	}
 
@@ -98,7 +97,7 @@ func ModifyPlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	err := common.ParseRequestJsonInto(r, plan)
 	if err != nil {
 		logger.Error("Parse body err: %v", err)
-		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeParseJsonFailed, err.Error()), nil)
+		JsonResult(w, http.StatusBadRequest, GetError2(ErrorCodeParseJsonFailed, err.Error()), nil)
 		return
 	}
 	logger.Debug("Plan: %v", plan)
@@ -112,12 +111,12 @@ func ModifyPlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	err = models.ModifyPlan(db, plan)
 	if err != nil {
 		logger.Error("Modify plan err: %v", err)
-		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeModifyPlan, err.Error()), nil)
+		JsonResult(w, http.StatusBadRequest, GetError2(ErrorCodeModifyPlan, err.Error()), nil)
 		return
 	}
 
 	logger.Info("End modify plan handler.")
-	api.JsonResult(w, http.StatusOK, nil, nil)
+	JsonResult(w, http.StatusOK, nil, nil)
 }
 
 func RetrievePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -128,7 +127,7 @@ func RetrievePlan(w http.ResponseWriter, r *http.Request, params httprouter.Para
 	db := models.GetDB()
 	if db == nil {
 		logger.Warn("Get db is nil.")
-		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeDbNotInitlized), nil)
+		JsonResult(w, http.StatusInternalServerError, GetError(ErrorCodeDbNotInitlized), nil)
 		return
 	}
 
@@ -136,12 +135,12 @@ func RetrievePlan(w http.ResponseWriter, r *http.Request, params httprouter.Para
 	plan, err := models.RetrievePlanByID(db, planId)
 	if err != nil {
 		logger.Error("Get plan err: %v", err)
-		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeGetPlan), nil)
+		JsonResult(w, http.StatusInternalServerError, GetError(ErrorCodeGetPlan), nil)
 		return
 	}
 
 	logger.Info("End retrieve plan handler.")
-	api.JsonResult(w, http.StatusOK, nil, plan)
+	JsonResult(w, http.StatusOK, nil, plan)
 }
 
 func QueryPlanList(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -152,7 +151,7 @@ func QueryPlanList(w http.ResponseWriter, r *http.Request, params httprouter.Par
 	db := models.GetDB()
 	if db == nil {
 		logger.Warn("Get db is nil.")
-		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeDbNotInitlized), nil)
+		JsonResult(w, http.StatusInternalServerError, GetError(ErrorCodeDbNotInitlized), nil)
 		return
 	}
 
@@ -161,18 +160,18 @@ func QueryPlanList(w http.ResponseWriter, r *http.Request, params httprouter.Par
 	region := r.Form.Get("region")
 	ptype := r.Form.Get("type")
 
-	offset, size := api.OptionalOffsetAndSize(r, 30, 1, 100)
+	offset, size := OptionalOffsetAndSize(r, 30, 1, 100)
 	orderBy := models.ValidateOrderBy(r.Form.Get("orderby"))
 	sortOrder := models.ValidateSortOrder(r.Form.Get("sortorder"), false)
 
 	count, apps, err := models.QueryPlans(db, region, ptype, orderBy, sortOrder, offset, size)
 	if err != nil {
-		api.JsonResult(w, http.StatusBadRequest, api.GetError2(api.ErrorCodeQueryPlans, err.Error()), nil)
+		JsonResult(w, http.StatusBadRequest, GetError2(ErrorCodeQueryPlans, err.Error()), nil)
 		return
 	}
 
 	logger.Info("End retrieve plan handler.")
-	api.JsonResult(w, http.StatusOK, nil, api.NewQueryListResult(count, apps))
+	JsonResult(w, http.StatusOK, nil, NewQueryListResult(count, apps))
 }
 
 func RetrievePlanRegion(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -183,17 +182,17 @@ func RetrievePlanRegion(w http.ResponseWriter, r *http.Request, params httproute
 	db := models.GetDB()
 	if db == nil {
 		logger.Warn("Get db is nil.")
-		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeDbNotInitlized), nil)
+		JsonResult(w, http.StatusInternalServerError, GetError(ErrorCodeDbNotInitlized), nil)
 		return
 	}
 
 	regions, err := models.RetrievePlanRegion(db)
 	if err != nil {
-		api.JsonResult(w, http.StatusInternalServerError, api.GetError(api.ErrorCodeGetPlansRegion), nil)
+		JsonResult(w, http.StatusInternalServerError, GetError(ErrorCodeGetPlansRegion), nil)
 	}
 
 	logger.Info("End retrieve plans's region handler.")
-	api.JsonResult(w, http.StatusOK, nil, api.NewQueryListResult(int64(len(regions)), regions))
+	JsonResult(w, http.StatusOK, nil, NewQueryListResult(int64(len(regions)), regions))
 }
 
 func genUUID() string {
@@ -208,28 +207,19 @@ func genUUID() string {
 	return fmt.Sprintf("%X-%X-%X-%X-%X", bs[0:4], bs[4:6], bs[6:8], bs[8:10], bs[10:])
 }
 
-//func validateAppProvider(provider string, musBeNotBlank bool) (string, *Error) {
-//	if musBeNotBlank || provider != "" {
-//		// most 20 Chinese chars
-//		provider_param, e := _mustStringParam("provider", provider, 60, StringParamType_General)
-//		if e != nil {
-//			return "", e
-//		}
-//		provider = provider_param
-//	}
-//
-//	return provider, nil
-//}
-//
-//func validateAppCategory(category string, musBeNotBlank bool) (string, *api.Error) {
-//	if musBeNotBlank || category != "" {
-//		// most 10 Chinese chars
-//		category_param, e := _mustStringParam("category", category, 32, StringParamType_General)
-//		if e != nil {
-//			return "", e
-//		}
-//		category = category_param
-//	}
-//
-//	return category, nil
-//}
+func validateAuth(token string) (string, *Error) {
+	if token == "" {
+		return "", GetError(ErrorCodeAuthFailed)
+	}
+
+	username, err := getDFUserame(token)
+	if err != nil {
+		return "", GetError2(ErrorCodeAuthFailed, err.Error())
+	}
+
+	return username, nil
+}
+
+func canEditSaasApps(username string) bool {
+	return username == "wangmeng5"
+}

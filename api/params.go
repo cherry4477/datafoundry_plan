@@ -16,7 +16,6 @@ import (
 
 	"github.com/asiainfoLDP/datafoundry_plan/common"
 	//"github.com/asiainfoLDP/datahub_commons/log"
-	"github.com/asiainfoLDP/datafoundry_plan/log"
 
 	"github.com/asiainfoLDP/datahub_commons/mq"
 	"github.com/astaxie/beego/logs"
@@ -48,7 +47,6 @@ var Debug = false
 //var logger = log.GetLogger()
 
 var (
-	logger = log.GetLogger()
 	theMQ  unsafe.Pointer
 )
 
