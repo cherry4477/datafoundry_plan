@@ -106,7 +106,7 @@ func createOpenshiftClient(host, username, password string) *OpenshiftClient {
 	}
 	oc.bearerToken.Store("")
 
-	go oc.updateBearerToken()
+	//go oc.updateBearerToken()
 
 	return oc
 }

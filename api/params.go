@@ -47,7 +47,7 @@ var Debug = false
 //var logger = log.GetLogger()
 
 var (
-	theMQ  unsafe.Pointer
+	theMQ unsafe.Pointer
 )
 
 //======================================================

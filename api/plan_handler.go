@@ -30,6 +30,18 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
+	username, e := validateAuth(r.Header.Get("Authorization"))
+	if e != nil {
+		JsonResult(w, http.StatusUnauthorized, e, nil)
+		return
+	}
+	logger.Info("username:%v", username)
+
+	if !canEditSaasApps(username) {
+		JsonResult(w, http.StatusUnauthorized, GetError(ErrorCodePermissionDenied), nil)
+		return
+	}
+
 	plan := &models.Plan{}
 	err := common.ParseRequestJsonInto(r, plan)
 	if err != nil {
@@ -40,7 +52,7 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 
 	plan.Plan_id = genUUID()
 
-	logger.Debug("plan: %v", plan)
+	logger.Info("plan: %v", plan)
 
 	//create plan in database
 	planId, err := models.CreatePlan(db, plan)
