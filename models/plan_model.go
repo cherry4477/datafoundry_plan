@@ -38,6 +38,7 @@ type Result struct {
 	Plan_level      int       `json:"plan_level,omitempty"`
 	Specification1  string    `json:"specification1,omitempty"`
 	Specification2  string    `json:"specification2,omitempty"`
+	Description     string    `json:"description, omitempty"`
 	Price           float32   `json:"price,omitempty"`
 	Cycle           string    `json:"cycle,omitempty"`
 	Region          string    `json:"region,omitempty"`
@@ -143,6 +144,7 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 					P.PLAN_TYPE, P.PLAN_LEVEL,
 					P.SPECIFICATION1,
 					P.SPECIFICATION2,
+					P.DESCRIPTION,
 					P.PRICE, P.CYCLE,
 					R.IDENTIFICATION, R.REGION_DESCRIBE,
 					P.CREATE_TIME, P.STATUS
@@ -167,7 +169,8 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 	for rows.Next() {
 		plan := &Result{}
 		err := rows.Scan(
-			&plan.Id, &plan.Plan_id, &plan.Plan_name, &plan.Plan_type, &plan.Plan_level, &plan.Specification1, &plan.Specification2,
+			&plan.Id, &plan.Plan_id, &plan.Plan_name, &plan.Plan_type, &plan.Plan_level,
+			&plan.Specification1, &plan.Specification2, &plan.Description,
 			&plan.Price, &plan.Cycle, &plan.Region, &plan.Region_describe, &plan.Create_time, &plan.Status,
 		)
 		if err != nil {
