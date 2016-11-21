@@ -16,6 +16,7 @@ type Plan struct {
 	Plan_level     int       `json:"plan_level,omitempty"`
 	Specification1 string    `json:"specification1,omitempty"`
 	Specification2 string    `json:"specification2,omitempty"`
+	Description    string    `json:"description, omitempty"`
 	Price          float32   `json:"price,omitempty"`
 	Cycle          string    `json:"cycle,omitempty"`
 	Create_time    time.Time `json:"creation_time,omitempty"`
@@ -51,15 +52,15 @@ func CreatePlan(db *sql.DB, planInfo *Plan) (string, error) {
 	nowstr := time.Now().Format("2006-01-02 15:04:05.999999")
 	sqlstr := fmt.Sprintf(`insert into DF_PLAN (
 				PLAN_ID, PLAN_NAME, PLAN_TYPE, PLAN_LEVEL, SPECIFICATION1, SPECIFICATION2,
-				PRICE, CYCLE, CREATE_TIME, REGION_ID, STATUS
+				DESCRIPTION, PRICE, CYCLE, CREATE_TIME, REGION_ID, STATUS
 				) values (
-				?, ?, ?, ?, ?, ?, ?, ?,
+				?, ?, ?, ?, ?, ?, ?, ?, ?,
 				'%s', ?, '%s')`,
 		nowstr, "A")
 
 	_, err := db.Exec(sqlstr,
 		planInfo.Plan_id, planInfo.Plan_name, planInfo.Plan_type, planInfo.Plan_level, planInfo.Specification1, planInfo.Specification2,
-		planInfo.Price, planInfo.Cycle, planInfo.Region_id)
+		planInfo.Description, planInfo.Price, planInfo.Cycle, planInfo.Region_id)
 
 	logger.Info("Model end create a plan.")
 	return planInfo.Plan_id, err
