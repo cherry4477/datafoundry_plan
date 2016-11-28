@@ -1,7 +1,6 @@
 package log
 
 import (
-	"flag"
 	"github.com/astaxie/beego/logs"
 )
 
@@ -10,12 +9,12 @@ const (
 )
 
 var (
-	debug  = flag.Bool("debug", false, "is debug mode?")
-	logger *logs.BeeLogger
+	SetDebug bool
+	logger   *logs.BeeLogger
 )
 
 func init() {
-	flag.Parse()
+
 	logger = logs.NewLogger(CHANNELLEN)
 
 	err := logger.SetLogger("console", "")
@@ -27,8 +26,11 @@ func init() {
 	//显示文件名和行号
 	logger.EnableFuncCallDepth(true)
 
+}
+
+func InitLog() {
 	//判断是不是以 DEBUG 模式启动
-	if *debug == false {
+	if SetDebug == false {
 		logger.Info("mode is info...")
 		logger.SetLevel(logs.LevelInfo)
 	} else {

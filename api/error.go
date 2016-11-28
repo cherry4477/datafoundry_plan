@@ -29,11 +29,12 @@ const (
 	ErrorCodeAuthFailed        = 1305
 	ErrorCodePermissionDenied  = 1306
 	ErrorCodeInvalidParameters = 1307
-	ErrorCodeCreateApp         = 1308
-	ErrorCodeDeleteApp         = 1309
-	ErrorCodeModifyApp         = 1310
-	ErrorCodeGetApp            = 1311
-	ErrorCodeQueryApps         = 1312
+	ErrorCodeCreatePlan        = 1308
+	ErrorCodeDeletePlan        = 1309
+	ErrorCodeModifyPlan        = 1310
+	ErrorCodeGetPlan           = 1311
+	ErrorCodeQueryPlans        = 1312
+	ErrorCodeGetPlansRegion    = 1313
 
 	NumErrors = 1500 // about 12k memroy wasted
 )
@@ -50,11 +51,11 @@ func init() {
 	initError(ErrorCodePermissionDenied, "permission denied")
 	initError(ErrorCodeInvalidParameters, "invalid parameters")
 
-	initError(ErrorCodeCreateApp, "failed to create app")
-	initError(ErrorCodeDeleteApp, "failed to delete app")
-	initError(ErrorCodeModifyApp, "failed to modify app")
-	initError(ErrorCodeGetApp, "failed to retrieve app")
-	initError(ErrorCodeQueryApps, "failed to query apps")
+	initError(ErrorCodeCreatePlan, "failed to create plan")
+	initError(ErrorCodeDeletePlan, "failed to delete plan")
+	initError(ErrorCodeModifyPlan, "failed to modify plan")
+	initError(ErrorCodeGetPlan, "failed to retrieve plan")
+	initError(ErrorCodeQueryPlans, "failed to query plans")
 
 	ErrorNone = GetError(ErrorCodeNone)
 	ErrorUnkown = GetError(ErrorCodeUnkown)
