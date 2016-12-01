@@ -171,12 +171,13 @@ func QueryPlanList(w http.ResponseWriter, r *http.Request, params httprouter.Par
 
 	region := r.Form.Get("region")
 	ptype := r.Form.Get("type")
+	belong := r.Form.Get("belong")
 
 	offset, size := OptionalOffsetAndSize(r, 30, 1, 100)
 	orderBy := models.ValidateOrderBy(r.Form.Get("orderby"))
 	sortOrder := models.ValidateSortOrder(r.Form.Get("sortorder"), false)
 
-	count, apps, err := models.QueryPlans(db, region, ptype, orderBy, sortOrder, offset, size)
+	count, apps, err := models.QueryPlans(db, region, ptype, belong, orderBy, sortOrder, offset, size)
 	if err != nil {
 		JsonResult(w, http.StatusBadRequest, GetError2(ErrorCodeQueryPlans, err.Error()), nil)
 		return

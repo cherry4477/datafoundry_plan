@@ -197,7 +197,7 @@ func modifyPlanStatusToN(db *sql.DB, planId string) error {
 	return err
 }
 
-func QueryPlans(db *sql.DB, region, ptype, orderBy string, sortOrder bool, offset int64, limit int) (int64, []*Result, error) {
+func QueryPlans(db *sql.DB, region, ptype, belong, orderBy string, sortOrder bool, offset int64, limit int) (int64, []*Result, error) {
 	logger.Info("Model begin get plan list.")
 	defer logger.Info("Model end get plan list.")
 
@@ -232,6 +232,14 @@ func QueryPlans(db *sql.DB, region, ptype, orderBy string, sortOrder bool, offse
 		sqlParams = append(sqlParams, ptype)
 	}
 
+	if belong != "" {
+		if sqlWhere == "" {
+			sqlWhere = "BELONG = ?"
+		} else {
+			sqlWhere = sqlWhere + " and BELONG = ?"
+		}
+		sqlParams = append(sqlParams, belong)
+	}
 	// ...
 
 	switch strings.ToLower(orderBy) {
