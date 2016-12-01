@@ -173,7 +173,7 @@ func QueryPlanList(w http.ResponseWriter, r *http.Request, params httprouter.Par
 	ptype := r.Form.Get("type")
 	belong := r.Form.Get("belong")
 
-	offset, size := OptionalOffsetAndSize(r, 30, 1, 100)
+	offset, size := OptionalOffsetAndSize(r, 10000, 1, 100000)
 	orderBy := models.ValidateOrderBy(r.Form.Get("orderby"))
 	sortOrder := models.ValidateSortOrder(r.Form.Get("sortorder"), false)
 
