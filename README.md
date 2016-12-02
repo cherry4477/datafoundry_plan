@@ -87,6 +87,7 @@ specification2: 套餐规格2
 price: 套餐价格
 cycle: 计价周期
 region_id: 套餐所在区域id
+
 ```
 
 Return Result (json):
