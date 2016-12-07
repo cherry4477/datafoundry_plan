@@ -36,6 +36,7 @@ type Result struct {
 	Plan_id         string    `json:"plan_id,omitempty"`
 	Plan_name       string    `json:"plan_name,omitempty"`
 	Plan_type       string    `json:"plan_type,omitempty"`
+	Belong          string    `json:"belong,omitempty"`
 	Plan_level      int       `json:"plan_level,omitempty"`
 	Specification1  string    `json:"specification1,omitempty"`
 	Specification2  string    `json:"specification2,omitempty"`
@@ -142,7 +143,7 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 
 	sql_str := fmt.Sprintf(`select
 					P.ID, P.PLAN_ID, P.PLAN_NAME,
-					P.PLAN_TYPE, P.PLAN_LEVEL,
+					P.PLAN_TYPE, P.BELONG, P.PLAN_LEVEL,
 					P.SPECIFICATION1,
 					P.SPECIFICATION2,
 					P.DESCRIPTION,
@@ -170,7 +171,7 @@ func queryPlans(db *sql.DB, sqlWhere string, limit int, offset int64, sqlParams 
 	for rows.Next() {
 		plan := &Result{}
 		err := rows.Scan(
-			&plan.Id, &plan.Plan_id, &plan.Plan_name, &plan.Plan_type, &plan.Plan_level,
+			&plan.Id, &plan.Plan_id, &plan.Plan_name, &plan.Plan_type, &plan.Belong, &plan.Plan_level,
 			&plan.Specification1, &plan.Specification2, &plan.Description,
 			&plan.Price, &plan.Cycle, &plan.Region, &plan.Region_describe, &plan.Create_time, &plan.Status,
 		)
