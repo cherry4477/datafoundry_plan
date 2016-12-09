@@ -85,7 +85,7 @@ func ModifyPlan(db *sql.DB, planInfo *Plan) error {
 	logger.Info("Model begin modify a plan.")
 	defer logger.Info("Model begin modify a plan.")
 
-	plan, err := RetrievePlanByID(db, planInfo.Plan_id)
+	plan, err := RetrievePlanByID(db, planInfo.Plan_id, "")
 	if err != nil {
 		return err
 	} else if plan == nil {
@@ -106,15 +106,34 @@ func ModifyPlan(db *sql.DB, planInfo *Plan) error {
 	return err
 }
 
-func RetrievePlanByID(db *sql.DB, planID string) (*Result, error) {
+func RetrievePlanByID(db *sql.DB, planID, region string) (*Result, error) {
 	logger.Info("Model begin get a plan by id.")
 
 	logger.Info("Model end get a plan by id.")
-	return getSinglePlan(db, fmt.Sprintf("PLAN_ID = '%s' and STATUS = 'A'", planID))
+	return getSinglePlan(db, fmt.Sprintf("PLAN_ID = '%s' and STATUS = 'A'", planID), region)
 }
 
-func getSinglePlan(db *sql.DB, sqlWhere string) (*Result, error) {
-	apps, err := queryPlans(db, sqlWhere, 1, 0)
+func getSinglePlan(db *sql.DB, sqlWhere, region string) (*Result, error) {
+
+	sqlParams := make([]interface{}, 0, 4)
+
+	region = strings.ToLower(region)
+	if region != "" {
+
+		regionId, err := getRegionId(db, region)
+		logger.Info("regionId = %v", regionId)
+		if err != nil {
+			return nil, err
+		}
+
+		if sqlWhere == "" {
+			sqlWhere = "P.REGION_ID = ?"
+		} else {
+			sqlWhere = sqlWhere + " and P.REGION_ID = ?"
+		}
+		sqlParams = append(sqlParams, regionId)
+	}
+	apps, err := queryPlans(db, sqlWhere, 1, 0, sqlParams...)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
