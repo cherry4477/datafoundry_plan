@@ -143,8 +143,13 @@ func RetrievePlan(w http.ResponseWriter, r *http.Request, params httprouter.Para
 		return
 	}
 
+	r.ParseForm()
+
+	region := r.Form.Get("region")
+	logger.Info("region=%s", region)
+
 	planId := params.ByName("id")
-	plan, err := models.RetrievePlanByID(db, planId)
+	plan, err := models.RetrievePlanByID(db, planId, region)
 	if err != nil {
 		logger.Error("Get plan err: %v", err)
 		JsonResult(w, http.StatusInternalServerError, GetError(ErrorCodeGetPlan), nil)
