@@ -10,12 +10,18 @@ import (
 	mathrand "math/rand"
 	"net/http"
 	"time"
+	"os"
+	"strings"
 )
 
 var logger = log.GetLogger()
 
+var AdminUsers = make([]string, 0)
+
 func init() {
 	mathrand.Seed(time.Now().UnixNano())
+
+	initAdminUser
 }
 
 func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -37,7 +43,7 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	}
 	logger.Info("username:%v", username)
 
-	if !canEditSaasApps(username) {
+	if !checkAdminUsers(username) {
 		JsonResult(w, http.StatusUnauthorized, GetError(ErrorCodePermissionDenied), nil)
 		return
 	}
@@ -233,6 +239,22 @@ func validateAuth(token string) (string, *Error) {
 	return username, nil
 }
 
-func canEditSaasApps(username string) bool {
-	return username == "wangmeng5"
+func initAdminUser()  {
+	admins := os.Getenv("ADMINUSERS")
+	if admins == "" {
+		logger.Warn("Not set admin users.")
+	}
+	admins = strings.TrimSpace(admins)
+	AdminUsers = strings.Split(admins, " ")
+	logger.Info("Admin users: %v.", AdminUsers)
+}
+
+func checkAdminUsers(user string) bool {
+	for _, adminUser := range AdminUsers {
+		if adminUser == user {
+			return true
+		}
+	}
+
+	return false
 }
