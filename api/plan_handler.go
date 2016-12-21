@@ -21,7 +21,7 @@ var AdminUsers = make([]string, 0)
 func init() {
 	mathrand.Seed(time.Now().UnixNano())
 
-	initAdminUser
+	initAdminUser()
 }
 
 func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
