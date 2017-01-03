@@ -2,6 +2,7 @@ package api
 
 import (
 	"crypto/rand"
+	"encoding/json"
 	"fmt"
 	"github.com/asiainfoLDP/datafoundry_plan/common"
 	"github.com/asiainfoLDP/datafoundry_plan/log"
@@ -9,9 +10,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 	mathrand "math/rand"
 	"net/http"
-	"time"
 	"os"
 	"strings"
+	"time"
 )
 
 var logger = log.GetLogger()
@@ -36,6 +37,7 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
+	//validate authentication
 	username, e := validateAuth(r.Header.Get("Authorization"))
 	if e != nil {
 		JsonResult(w, http.StatusUnauthorized, e, nil)
@@ -48,6 +50,18 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
+	//validate input body
+	correctInput := []string{"plan_name", "plan_type", "plan_level", "specification1",
+		"specification2", "description", "price", "cycle", "region_id"}
+	flag := validateCreateBody(r, correctInput)
+	if !flag {
+		logger.Error("Input params is not correct")
+		JsonResult(w, http.StatusBadRequest, GetError(ErrorCodeInputParam), nil)
+		return
+	}
+	//validate complete
+
+	//parse params
 	plan := &models.Plan{}
 	err := common.ParseRequestJsonInto(r, plan)
 	if err != nil {
@@ -84,6 +98,18 @@ func DeletePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
+	username, e := validateAuth(r.Header.Get("Authorization"))
+	if e != nil {
+		JsonResult(w, http.StatusUnauthorized, e, nil)
+		return
+	}
+	logger.Info("username:%v", username)
+
+	if !checkAdminUsers(username) {
+		JsonResult(w, http.StatusUnauthorized, GetError(ErrorCodePermissionDenied), nil)
+		return
+	}
+
 	planId := params.ByName("id")
 	logger.Debug("Plan id: %s.", planId)
 
@@ -110,6 +136,29 @@ func ModifyPlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		JsonResult(w, http.StatusInternalServerError, GetError(ErrorCodeDbNotInitlized), nil)
 		return
 	}
+
+	username, e := validateAuth(r.Header.Get("Authorization"))
+	if e != nil {
+		JsonResult(w, http.StatusUnauthorized, e, nil)
+		return
+	}
+	logger.Info("username:%v", username)
+
+	if !checkAdminUsers(username) {
+		JsonResult(w, http.StatusUnauthorized, GetError(ErrorCodePermissionDenied), nil)
+		return
+	}
+
+	//validate input body
+	correctInput := []string{"plan_name", "plan_type", "plan_level", "specification1",
+		"specification2", "description", "price", "cycle", "region_id"}
+	flag := validateCreateBody(r, correctInput)
+	if !flag {
+		logger.Error("Input params is not correct")
+		JsonResult(w, http.StatusBadRequest, GetError(ErrorCodeInputParam), nil)
+		return
+	}
+	//validate complete
 
 	plan := &models.Plan{}
 	err := common.ParseRequestJsonInto(r, plan)
@@ -244,7 +293,7 @@ func validateAuth(token string) (string, *Error) {
 	return username, nil
 }
 
-func initAdminUser()  {
+func initAdminUser() {
 	admins := os.Getenv("ADMINUSERS")
 	if admins == "" {
 		logger.Warn("Not set admin users.")
@@ -262,4 +311,27 @@ func checkAdminUsers(user string) bool {
 	}
 
 	return false
+}
+
+func validateCreateBody(r *http.Request, correctInput []string) bool {
+	data, err := common.GetRequestData(r)
+	if err != nil {
+		logger.Error("Get request data err: %v", err)
+		return false
+	}
+
+	paramsMap := make(map[string]interface{})
+	err = json.Unmarshal(data, &paramsMap)
+	if err != nil {
+		logger.Error("Unmarshal err: %v", err)
+		return false
+	}
+
+	for _, value := range correctInput {
+		if paramsMap[value] == nil {
+			return false
+		}
+	}
+
+	return true
 }
