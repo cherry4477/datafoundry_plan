@@ -2,7 +2,6 @@ package api
 
 import (
 	"crypto/rand"
-	"encoding/json"
 	"fmt"
 	"github.com/asiainfoLDP/datafoundry_plan/common"
 	"github.com/asiainfoLDP/datafoundry_plan/log"
