@@ -50,20 +50,11 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
-	//validate input body
+	//parse params
 	correctInput := []string{"plan_name", "plan_type", "plan_level", "specification1",
 		"specification2", "description", "price", "cycle", "region_id"}
-	flag := validateCreateBody(r, correctInput)
-	if !flag {
-		logger.Error("Input params is not correct")
-		JsonResult(w, http.StatusBadRequest, GetError(ErrorCodeInputParam), nil)
-		return
-	}
-	//validate complete
-
-	//parse params
 	plan := &models.Plan{}
-	err := common.ParseRequestJsonInto(r, plan)
+	err := common.ParseRequestJsonIntoWithValidateParams(r, correctInput, plan)
 	if err != nil {
 		logger.Error("Parse body err: %v", err)
 		JsonResult(w, http.StatusBadRequest, GetError2(ErrorCodeParseJsonFailed, err.Error()), nil)
@@ -149,19 +140,10 @@ func ModifyPlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
-	//validate input body
 	correctInput := []string{"plan_name", "plan_type", "plan_level", "specification1",
 		"specification2", "description", "price", "cycle", "region_id"}
-	flag := validateCreateBody(r, correctInput)
-	if !flag {
-		logger.Error("Input params is not correct")
-		JsonResult(w, http.StatusBadRequest, GetError(ErrorCodeInputParam), nil)
-		return
-	}
-	//validate complete
-
 	plan := &models.Plan{}
-	err := common.ParseRequestJsonInto(r, plan)
+	err := common.ParseRequestJsonIntoWithValidateParams(r, correctInput, plan)
 	if err != nil {
 		logger.Error("Parse body err: %v", err)
 		JsonResult(w, http.StatusBadRequest, GetError2(ErrorCodeParseJsonFailed, err.Error()), nil)
@@ -311,27 +293,4 @@ func checkAdminUsers(user string) bool {
 	}
 
 	return false
-}
-
-func validateCreateBody(r *http.Request, correctInput []string) bool {
-	data, err := common.GetRequestData(r)
-	if err != nil {
-		logger.Error("Get request data err: %v", err)
-		return false
-	}
-
-	paramsMap := make(map[string]interface{})
-	err = json.Unmarshal(data, &paramsMap)
-	if err != nil {
-		logger.Error("Unmarshal err: %v", err)
-		return false
-	}
-
-	for _, value := range correctInput {
-		if paramsMap[value] == nil {
-			return false
-		}
-	}
-
-	return true
 }
