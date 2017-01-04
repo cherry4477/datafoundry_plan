@@ -128,6 +128,7 @@ data.belong
 data.plan_level
 data.specification1
 data.specification2
+data.description
 data.price
 data.cycle
 data.region
