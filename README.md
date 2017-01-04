@@ -7,6 +7,15 @@ datafoundry套餐微服务
 ##数据库设计
 
 ```
+CREATE TABLE IF NOT EXISTS DF_PLAN_REGION
+(
+    ID                TINYINT NOT NULL AUTO_INCREMENT,
+    REGION            VARCHAR(30) NOT NULL,
+    REGION_DESCRIBE   VARCHAR(128) NOT NULL,
+    IDENTIFICATION    VARCHAR(128) NOT NULL,
+    PRIMARY KEY (ID)
+) DEFAULT CHARSET=UTF8;
+
 CREATE TABLE IF NOT EXISTS DF_PLAN
 (
     ID                INT NOT NULL AUTO_INCREMENT,
@@ -17,6 +26,7 @@ CREATE TABLE IF NOT EXISTS DF_PLAN
     PLAN_LEVEL        TINYINT NOT NULL,
     SPECIFICATION1    VARCHAR(128) NOT NULL,
     SPECIFICATION2    VARCHAR(128) NOT NULL,
+    DESCRIPTION       TEXT,
     PRICE             DOUBLE(10,2)  NOT NULL,
     CYCLE             VARCHAR(2) NOT NULL,
     REGION            VARCHAR(30) NOT NULL,
@@ -39,6 +49,7 @@ plan_type: 套餐类型
 plan_level: 套餐等级
 specification1: 套餐规格1
 specification2: 套餐规格2
+description： 套餐描述
 price: 套餐价格
 cycle: 计价周期
 region_id: 套餐所在区域id
@@ -84,6 +95,7 @@ plan_type: 套餐类型
 plan_level: 套餐等级
 specification1: 套餐规格1
 specification2: 套餐规格2
+description： 套餐描述
 price: 套餐价格
 cycle: 计价周期
 region_id: 套餐所在区域id
@@ -112,6 +124,7 @@ msg: 返回信息
 data.plan_id
 data.plan_name
 data.plan_type
+data.belong
 data.plan_level
 data.specification1
 data.specification2
@@ -143,9 +156,11 @@ data.results
 data.results[0].plan_id
 data.results[0].plan_name
 data.results[0].plan_type
+data.results[0].belong
 data.results[0].plan_level
 data.results[0].specification1
 data.results[0].specification2
+data.results[0].description
 data.results[0].price
 data.results[0].cycle
 data.results[0].region
