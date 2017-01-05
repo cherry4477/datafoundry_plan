@@ -35,6 +35,7 @@ const (
 	ErrorCodeGetPlan           = 1311
 	ErrorCodeQueryPlans        = 1312
 	ErrorCodeGetPlansRegion    = 1313
+	ErrorCodeInputParam        = 1314
 
 	NumErrors = 1500 // about 12k memroy wasted
 )
@@ -56,6 +57,8 @@ func init() {
 	initError(ErrorCodeModifyPlan, "failed to modify plan")
 	initError(ErrorCodeGetPlan, "failed to retrieve plan")
 	initError(ErrorCodeQueryPlans, "failed to query plans")
+
+	initError(ErrorCodeInputParam, "input params is not correct")
 
 	ErrorNone = GetError(ErrorCodeNone)
 	ErrorUnkown = GetError(ErrorCodeUnkown)

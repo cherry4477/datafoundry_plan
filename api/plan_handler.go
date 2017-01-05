@@ -9,9 +9,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 	mathrand "math/rand"
 	"net/http"
-	"time"
 	"os"
 	"strings"
+	"time"
 )
 
 var logger = log.GetLogger()
@@ -36,6 +36,7 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
+	//validate authentication
 	username, e := validateAuth(r.Header.Get("Authorization"))
 	if e != nil {
 		JsonResult(w, http.StatusUnauthorized, e, nil)
@@ -48,8 +49,11 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
+	//parse params
+	correctInput := []string{"plan_name", "plan_type", "plan_level", "specification1",
+		"specification2", "description", "price", "cycle", "region_id"}
 	plan := &models.Plan{}
-	err := common.ParseRequestJsonInto(r, plan)
+	err := common.ParseRequestJsonIntoWithValidateParams(r, correctInput, plan)
 	if err != nil {
 		logger.Error("Parse body err: %v", err)
 		JsonResult(w, http.StatusBadRequest, GetError2(ErrorCodeParseJsonFailed, err.Error()), nil)
@@ -84,6 +88,18 @@ func DeletePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
+	username, e := validateAuth(r.Header.Get("Authorization"))
+	if e != nil {
+		JsonResult(w, http.StatusUnauthorized, e, nil)
+		return
+	}
+	logger.Info("username:%v", username)
+
+	if !checkAdminUsers(username) {
+		JsonResult(w, http.StatusUnauthorized, GetError(ErrorCodePermissionDenied), nil)
+		return
+	}
+
 	planId := params.ByName("id")
 	logger.Debug("Plan id: %s.", planId)
 
@@ -111,8 +127,22 @@ func ModifyPlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 
+	username, e := validateAuth(r.Header.Get("Authorization"))
+	if e != nil {
+		JsonResult(w, http.StatusUnauthorized, e, nil)
+		return
+	}
+	logger.Info("username:%v", username)
+
+	if !checkAdminUsers(username) {
+		JsonResult(w, http.StatusUnauthorized, GetError(ErrorCodePermissionDenied), nil)
+		return
+	}
+
+	correctInput := []string{"plan_name", "plan_type", "plan_level", "specification1",
+		"specification2", "description", "price", "cycle", "region_id"}
 	plan := &models.Plan{}
-	err := common.ParseRequestJsonInto(r, plan)
+	err := common.ParseRequestJsonIntoWithValidateParams(r, correctInput, plan)
 	if err != nil {
 		logger.Error("Parse body err: %v", err)
 		JsonResult(w, http.StatusBadRequest, GetError2(ErrorCodeParseJsonFailed, err.Error()), nil)
@@ -244,7 +274,7 @@ func validateAuth(token string) (string, *Error) {
 	return username, nil
 }
 
-func initAdminUser()  {
+func initAdminUser() {
 	admins := os.Getenv("ADMINUSERS")
 	if admins == "" {
 		logger.Warn("Not set admin users.")
