@@ -50,7 +50,7 @@ func CreatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	}
 
 	//parse params
-	correctInput := []string{"plan_name", "plan_type", "plan_level", "specification1",
+	correctInput := []string{"plan_name", "plan_type", "belong", "plan_level", "specification1",
 		"specification2", "description", "price", "cycle", "region_id"}
 	plan := &models.Plan{}
 	err := common.ParseRequestJsonIntoWithValidateParams(r, correctInput, plan)
