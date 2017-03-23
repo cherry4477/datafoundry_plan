@@ -60,6 +60,9 @@ func NewOpenshiftClient(token string) *OpenshiftClient {
 		host:    theOC.host,
 		oapiUrl: theOC.oapiUrl,
 		kapiUrl: theOC.kapiUrl,
+
+		HttpClient: theOC.HttpClient,
+		WatchClient: theOC.WatchClient,
 	}
 
 	oc.setBearerToken(token)
@@ -78,6 +81,9 @@ type OpenshiftClient struct {
 	password  string
 	//bearerToken string
 	bearerToken atomic.Value
+
+	HttpClient  *http.Client
+	WatchClient *http.Client
 }
 
 func httpsAddrMaker(addr string) string {
@@ -94,6 +100,11 @@ func httpsAddrMaker(addr string) string {
 
 // for admin
 func createOpenshiftClient(host, username, password string) *OpenshiftClient {
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		//DisableKeepAlives: true,
+	}
+	
 	host = httpsAddrMaker(host)
 	oc := &OpenshiftClient{
 		host: host,
@@ -103,6 +114,15 @@ func createOpenshiftClient(host, username, password string) *OpenshiftClient {
 
 		username: username,
 		password: password,
+
+		HttpClient:  &http.Client{
+			Transport: transport,
+			Timeout:   GeneralRequestTimeout,
+		},
+		WatchClient: &http.Client{
+			Transport: transport,
+			Timeout:   0,
+		},
 	}
 	oc.bearerToken.Store("")
 
@@ -171,14 +191,21 @@ func (oc *OpenshiftClient) request(method string, url string, body []byte, timeo
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", token)
 
-	transCfg := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	// moved into OpenshiftClient
+	//transCfg := &http.Transport{
+	//	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	//	//DisableKeepAlives: true,
+	//}
+	//client := &http.Client{
+	//	Transport: transCfg,
+	//	Timeout:   timeout,
+	//}
+	
+	if timeout <= 0 {
+		return oc.WatchClient.Do(req)
+	} else {
+		return oc.HttpClient.Do(req)
 	}
-	client := &http.Client{
-		Transport: transCfg,
-		Timeout:   timeout,
-	}
-	return client.Do(req)
 }
 
 type WatchStatus struct {
